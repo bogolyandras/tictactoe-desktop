@@ -5,9 +5,11 @@ image:
   - Visual Studio 2019
 
 environment:
+  CMAKE_GENERATOR: "Visual Studio 16 2019"
   matrix:
     # x86
     - CMAKE_GENERATOR_PLATFORM: x86
+    
     
     # x64
     - CMAKE_GENERATOR_PLATFORM: x64
