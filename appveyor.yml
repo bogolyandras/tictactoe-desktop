@@ -4,6 +4,7 @@ version: 0.1.{build}
 image:
   - Visual Studio 2019
 
+# Specify the possible combinations of configurations, platforms and environment values
 environment:
   configuration: Release
   CMAKE_GENERATOR: "Visual Studio 16 2019"
@@ -16,8 +17,15 @@ environment:
     - platform: x64
       CMAKE_GENERATOR_PLATFORM: x64
 
+# Before the build, we need to generate the MSBuild files with CMake
+# CMake will use the CMAKE_GENERATOR and CMAKE_GENERATOR_PLATFORM variables to accomplist it
 before_build:
  - cmd: cmake -H. -B./build
 
-build:
-  verbosity: normal
+# After that, the default MSBuild procedure will take place,
+# using the specified "configuration" and "platform" above.
+
+# Archive the build artifacts afterwards
+artifacts:
+  - path: build\winapi\$(configuration)\TicTacToe.exe
+    name: TicTacToe
