@@ -11,8 +11,8 @@ platform:
   - x86
   - x64
 
-build_script:
-  - cmake
+before_build:
+ - cmd: cmake -H. -B./build
 
 build:
   verbosity: normal
