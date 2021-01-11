@@ -10,7 +10,7 @@ configuration:
 - Release
 
 before_build:
-- cmd: cmake -H. -B./build -DBUILD_SHARED_LIBS=%DBUILD_SHARED_LIBS%
+- cmd: cmake
 
 build:
   verbosity: normal
