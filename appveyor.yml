@@ -4,12 +4,12 @@ version: 0.1.{build}
 image:
   - Visual Studio 2019
 
-configuration:
-  - Release
+environment:
+  matrix:
+    - CMAKE_GENERATOR_PLATFORM: x86
 
-platform:
-  - x86
-  - x64
+    - CMAKE_GENERATOR_PLATFORM: x64
+
 
 before_build:
  - cmd: cmake -H. -B./build
