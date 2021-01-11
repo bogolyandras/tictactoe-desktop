@@ -3,13 +3,15 @@ version: 0.1.{build}
 
 image:
   - Visual Studio 2019
+  
+configuration:
+ - Release
 
 environment:
   CMAKE_GENERATOR: "Visual Studio 16 2019"
   matrix:
     # x86
     - CMAKE_GENERATOR_PLATFORM: x86
-    
     
     # x64
     - CMAKE_GENERATOR_PLATFORM: x64
