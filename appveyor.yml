@@ -6,8 +6,10 @@ image:
 
 environment:
   matrix:
+    # x86
     - CMAKE_GENERATOR_PLATFORM: x86
-
+    
+    # x64
     - CMAKE_GENERATOR_PLATFORM: x64
 
 
