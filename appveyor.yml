@@ -12,7 +12,7 @@ environment:
   matrix:
     # x86
     - platform: x86
-      CMAKE_GENERATOR_PLATFORM: x86
+      CMAKE_GENERATOR_PLATFORM: Win32
     
     # x64
     - platform: x64
