@@ -6,4 +6,4 @@ cmake_minimum_required (VERSION 3.8)
 project ("tictactoe-desktop")
 
 # Include sub-projects.
-add_subdirectory ("winapi")
+add_subdirectory ("windows")
