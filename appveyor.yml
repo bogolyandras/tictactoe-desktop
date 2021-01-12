@@ -27,5 +27,5 @@ before_build:
 
 # Archive the build artifacts afterwards
 artifacts:
-  - path: build\winapi\$(configuration)\TicTacToe.exe
+  - path: build\windows\$(configuration)\TicTacToe.exe
     name: TicTacToe
