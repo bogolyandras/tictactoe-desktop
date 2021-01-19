@@ -30,6 +30,7 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #pragma comment(lib, "d2d1")
 
 #include "basewin.h"
+#include "layout.h"
 
 class MainWindowLogic
 {
@@ -40,9 +41,10 @@ private:
     std::unique_ptr<ID2D1Factory> pFactory;
     std::unique_ptr<ID2D1HwndRenderTarget> pRenderTarget;
     std::unique_ptr<ID2D1SolidColorBrush> pBrush;
-    D2D1_ELLIPSE ellipse;
 
     int32_t times = 0;
+
+    Layout layout;
 
 public:
     MainWindowLogic(HWND m_hwnd);
@@ -67,7 +69,7 @@ public:
 
 MainWindowLogic::MainWindowLogic(HWND m_hwnd) :
     m_hwnd{ m_hwnd },
-    ellipse{ {} }
+    layout(35, 25)
 {
     //Initialize Direct2D factory
     ID2D1Factory* pFactoryResult = NULL;
@@ -165,17 +167,12 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 }
 
 
-
 void MainWindowLogic::CalculateLayout()
 {
-    if (pRenderTarget == NULL) {
-        return;
-    }
+    
     D2D1_SIZE_F size = pRenderTarget->GetSize();
-    const float x = size.width / 2;
-    const float y = size.height / 2;
-    const float radius = min(x, y);
-    ellipse = D2D1::Ellipse(D2D1::Point2F(x, y), radius, radius);
+    layout.ChangeSize(size.width, size.height);
+
 }
 
 void MainWindowLogic::OnPaint()
@@ -186,7 +183,16 @@ void MainWindowLogic::OnPaint()
     pRenderTarget->BeginDraw();
 
     pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::SkyBlue));
-    pRenderTarget->FillEllipse(ellipse, pBrush.get());
+
+    for (size_t i = 0; i < layout.numberOfFields; i++) {
+        const float x = layout.fields[i].positionX + (layout.fields[i].sizeX / 2.0);
+        const float y = layout.fields[i].positionY + (layout.fields[i].sizeY / 2.0);
+        const float radius = min(layout.fields[i].sizeX / 2, layout.fields[i].sizeY / 2);
+
+        D2D1_ELLIPSE ellipse = D2D1::Ellipse(D2D1::Point2F(x, y), radius, radius);
+        pRenderTarget->FillEllipse(ellipse, pBrush.get());
+    }
+    
 
     HRESULT hr = pRenderTarget->EndDraw();
     if (FAILED(hr) || hr == D2DERR_RECREATE_TARGET)
