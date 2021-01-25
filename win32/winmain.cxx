@@ -163,11 +163,16 @@ void MainWindowLogic::OnPaint()
                                         layout.fields[i].positionY + layout.fields[i].sizeY
         );
         pRenderTarget->FillRectangle(rect, borderBrush.get());
-        const float border = 1.0f;
-        rect = D2D1::RectF(layout.fields[i].positionX + border,
-            layout.fields[i].positionY + border,
-            layout.fields[i].positionX + layout.fields[i].sizeX - border,
-            layout.fields[i].positionY + layout.fields[i].sizeY - border
+
+        D2D1_SIZE_F size = pRenderTarget->GetSize();
+        const float minSize =  min(size.width, size.height);
+
+        const float border = minSize / 400;
+        const float halfBorder = minSize / 800;
+        rect = D2D1::RectF(layout.fields[i].positionX + halfBorder,
+            layout.fields[i].positionY + halfBorder,
+            layout.fields[i].positionX + layout.fields[i].sizeX - halfBorder,
+            layout.fields[i].positionY + layout.fields[i].sizeY - halfBorder
         );
         pRenderTarget->FillRectangle(rect, backgroundBrush.get());
 
@@ -194,7 +199,7 @@ void MainWindowLogic::OnPaint()
                 D2D1::Point2F(layout.fields[i].positionX, layout.fields[i].positionY + layout.fields[i].sizeY),
                 D2D1::Point2F(layout.fields[i].positionX + layout.fields[i].sizeX, layout.fields[i].positionY),
                 player2Brush.get(),
-                1.5f
+                border
             );
         }
     }
