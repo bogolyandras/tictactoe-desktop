@@ -3,7 +3,13 @@
 #
 cmake_minimum_required (VERSION 3.8)
 
-project ("tictactoe-desktop")
+project (tictactoe-desktop)
+
+# specify the C++ standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Include sub-projects.
-add_subdirectory ("windows")
+add_subdirectory(core)
+add_subdirectory(win32)
+

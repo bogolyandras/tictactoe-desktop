@@ -30,7 +30,7 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #pragma comment(lib, "d2d1")
 
 #include "basewin.h"
-#include "layout.h"
+#include <layout.h>
 
 class MainWindowLogic
 {
