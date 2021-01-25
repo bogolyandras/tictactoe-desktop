@@ -1,8 +1,12 @@
 ﻿
 cmake_minimum_required (VERSION 3.8)
 
+# specify the C++ standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
 # Add source to this project's executable.
-add_executable (TicTacToeWin32 WIN32 "winentry.cpp"  "basewin.h")
+add_executable (TicTacToeWin32 WIN32 "winmain.cxx" "direct2d.cxx")
 target_link_libraries(TicTacToeWin32 PUBLIC ComCtl32.lib)
 target_link_libraries(TicTacToeWin32 PUBLIC TicTacToeCore)
 

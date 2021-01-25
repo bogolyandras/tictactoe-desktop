@@ -25,11 +25,8 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 //Com API
 #include <shobjidl.h>
 
-//Direct2D
-#include <d2d1.h>
-#pragma comment(lib, "d2d1")
-
 #include "basewin.h"
+#include "direct2d.h"
 #include <layout.h>
 
 class MainWindowLogic
@@ -40,7 +37,10 @@ private:
 
     std::unique_ptr<ID2D1Factory> pFactory;
     std::unique_ptr<ID2D1HwndRenderTarget> pRenderTarget;
-    std::unique_ptr<ID2D1SolidColorBrush> pBrush;
+    std::unique_ptr<ID2D1SolidColorBrush> backgroundBrush;
+    std::unique_ptr<ID2D1SolidColorBrush> borderBrush;
+    std::unique_ptr<ID2D1SolidColorBrush> player1Brush;
+    std::unique_ptr<ID2D1SolidColorBrush> player2Brush;
 
     int32_t times = 0;
 
@@ -59,7 +59,7 @@ public:
 class MainWindow : public BaseWindow<MainWindow>
 {
 private:
-    std::unique_ptr<MainWindowLogic> mainWindowSub;
+    std::unique_ptr<MainWindowLogic> mainWindowLogic;
 public:
     MainWindow() { }
 
@@ -71,42 +71,13 @@ MainWindowLogic::MainWindowLogic(HWND m_hwnd) :
     m_hwnd{ m_hwnd },
     layout(35, 25)
 {
-    //Initialize Direct2D factory
-    ID2D1Factory* pFactoryResult = NULL;
-    HRESULT result = D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, &pFactoryResult);
-    if (FAILED(result))
-    {
-        throw - 1;
-    }
-    pFactory.reset(pFactoryResult);
-
-    //Get size of window
-    RECT rc;
-    GetClientRect(m_hwnd, &rc);
-    D2D1_SIZE_U size = D2D1::SizeU(rc.right, rc.bottom);
-
-    //Create stuff
-    ID2D1HwndRenderTarget* pRenderTargetResult = NULL;
-    result = pFactory->CreateHwndRenderTarget(
-        D2D1::RenderTargetProperties(),
-        D2D1::HwndRenderTargetProperties(m_hwnd, size),
-        &pRenderTargetResult);
-
-    if (FAILED(result))
-    {
-        throw - 1;
-    }
-    pRenderTarget.reset(pRenderTargetResult);
-
-    ID2D1SolidColorBrush* pBrushResult = NULL;
-    const D2D1_COLOR_F color = D2D1::ColorF(1.0f, 1.0f, 0);
-    result = pRenderTarget->CreateSolidColorBrush(color, &pBrushResult);
-    if (FAILED(result))
-    {
-        throw - 1;
-    }
-    pBrush.reset(pBrushResult);
-
+    pFactory = direct2d::create_factory();
+    D2D1_SIZE_U size = direct2d::get_size_of_window(m_hwnd);
+    pRenderTarget = direct2d::create_render_target(pFactory.get(), m_hwnd, size);
+    backgroundBrush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::White);
+    borderBrush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::DarkOrange);
+    player1Brush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::PaleVioletRed);
+    player2Brush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::DarkGreen);
     CalculateLayout();
 }
 
@@ -117,7 +88,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_CREATE:
         {
             try {
-                mainWindowSub.reset(new MainWindowLogic(m_hwnd));
+                mainWindowLogic.reset(new MainWindowLogic(m_hwnd));
             }
             catch (const std::exception& e) {
                 return -1;
@@ -125,17 +96,17 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
         return 0;
     case WM_CLOSE:
-        mainWindowSub->OnClose();
+        mainWindowLogic->OnClose();
         return 0;
     case WM_DESTROY:
-        mainWindowSub.release();
+        mainWindowLogic.release();
         PostQuitMessage(0);
         return 0;
     case WM_PAINT:
-        mainWindowSub->OnPaint();
+        mainWindowLogic->OnPaint();
         return 0;
     case WM_SIZE:
-        mainWindowSub->OnResize();
+        mainWindowLogic->OnResize();
         return 0;
     default:
         return DefWindowProc(m_hwnd, uMsg, wParam, lParam);
@@ -149,7 +120,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
     if (!mainWindow.Create(L"TicTacToe", WS_OVERLAPPEDWINDOW))
     {
-        return 0;
+        return -1;
     }
 
     ShowWindow(mainWindow.Window(), nCmdShow);
@@ -182,15 +153,50 @@ void MainWindowLogic::OnPaint()
 
     pRenderTarget->BeginDraw();
 
-    pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::SkyBlue));
+    pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
 
     for (size_t i = 0; i < layout.numberOfFields; i++) {
-        const float x = layout.fields[i].positionX + (layout.fields[i].sizeX / 2.0);
-        const float y = layout.fields[i].positionY + (layout.fields[i].sizeY / 2.0);
-        const float radius = min(layout.fields[i].sizeX / 2, layout.fields[i].sizeY / 2);
 
-        D2D1_ELLIPSE ellipse = D2D1::Ellipse(D2D1::Point2F(x, y), radius, radius);
-        pRenderTarget->FillEllipse(ellipse, pBrush.get());
+        D2D1_RECT_F rect = D2D1::RectF(layout.fields[i].positionX,
+                                        layout.fields[i].positionY,
+                                        layout.fields[i].positionX + layout.fields[i].sizeX,
+                                        layout.fields[i].positionY + layout.fields[i].sizeY
+        );
+        pRenderTarget->FillRectangle(rect, borderBrush.get());
+        const float border = 1.0f;
+        rect = D2D1::RectF(layout.fields[i].positionX + border,
+            layout.fields[i].positionY + border,
+            layout.fields[i].positionX + layout.fields[i].sizeX - border,
+            layout.fields[i].positionY + layout.fields[i].sizeY - border
+        );
+        pRenderTarget->FillRectangle(rect, backgroundBrush.get());
+
+        if (i % 20 == 0) {
+            const float x = layout.fields[i].positionX + (layout.fields[i].sizeX / 2.0);
+            const float y = layout.fields[i].positionY + (layout.fields[i].sizeY / 2.0);
+            const float radius = min(layout.fields[i].sizeX / 2, layout.fields[i].sizeY / 2);
+
+            D2D1_ELLIPSE ellipse = D2D1::Ellipse(D2D1::Point2F(x, y), radius, radius);
+            pRenderTarget->FillEllipse(ellipse, player1Brush.get());
+            ellipse = D2D1::Ellipse(D2D1::Point2F(x, y), radius * 0.8, radius * 0.8);
+            pRenderTarget->FillEllipse(ellipse, backgroundBrush.get());
+        }
+
+        if (i % 20 == 1) {
+            pRenderTarget->DrawLine(
+                D2D1::Point2F(layout.fields[i].positionX, layout.fields[i].positionY),
+                D2D1::Point2F(layout.fields[i].positionX +layout.fields[i].sizeX, layout.fields[i].positionY + layout.fields[i].sizeY),
+                    player2Brush.get(),
+                1.5f
+            );
+
+            pRenderTarget->DrawLine(
+                D2D1::Point2F(layout.fields[i].positionX, layout.fields[i].positionY + layout.fields[i].sizeY),
+                D2D1::Point2F(layout.fields[i].positionX + layout.fields[i].sizeX, layout.fields[i].positionY),
+                player2Brush.get(),
+                1.5f
+            );
+        }
     }
     
 

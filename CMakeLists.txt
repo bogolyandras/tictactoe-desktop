@@ -12,4 +12,3 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # Include sub-projects.
 add_subdirectory(core)
 add_subdirectory(win32)
-
