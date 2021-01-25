@@ -28,6 +28,7 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #include "basewin.h"
 #include "direct2d.h"
 #include <layout.h>
+#include <table.h>
 
 class MainWindowLogic
 {
@@ -45,6 +46,7 @@ private:
     int32_t times = 0;
 
     Layout layout;
+    Table table;
 
 public:
     MainWindowLogic(HWND m_hwnd);
@@ -69,7 +71,8 @@ public:
 
 MainWindowLogic::MainWindowLogic(HWND m_hwnd) :
     m_hwnd{ m_hwnd },
-    layout(35, 25)
+    layout(35, 25),
+    table(35, 25)
 {
     pFactory = direct2d::create_factory();
     D2D1_SIZE_U size = direct2d::get_size_of_window(m_hwnd);
@@ -158,9 +161,9 @@ void MainWindowLogic::OnPaint()
     for (size_t i = 0; i < layout.numberOfFields; i++) {
 
         D2D1_RECT_F rect = D2D1::RectF(layout.fields[i].positionX,
-                                        layout.fields[i].positionY,
-                                        layout.fields[i].positionX + layout.fields[i].sizeX,
-                                        layout.fields[i].positionY + layout.fields[i].sizeY
+                                       layout.fields[i].positionY,
+                                       layout.fields[i].positionX + layout.fields[i].sizeX,
+                                       layout.fields[i].positionY + layout.fields[i].sizeY
         );
         pRenderTarget->FillRectangle(rect, borderBrush.get());
 
@@ -176,7 +179,8 @@ void MainWindowLogic::OnPaint()
         );
         pRenderTarget->FillRectangle(rect, backgroundBrush.get());
 
-        if (i % 20 == 0) {
+        
+        if (table.fields[i] == FieldState::Naught) {
             const float x = layout.fields[i].positionX + (layout.fields[i].sizeX / 2.0);
             const float y = layout.fields[i].positionY + (layout.fields[i].sizeY / 2.0);
             const float radius = min(layout.fields[i].sizeX / 2, layout.fields[i].sizeY / 2);
@@ -187,7 +191,7 @@ void MainWindowLogic::OnPaint()
             pRenderTarget->FillEllipse(ellipse, backgroundBrush.get());
         }
 
-        if (i % 20 == 1) {
+        if (table.fields[i] == FieldState::Cross) {
             pRenderTarget->DrawLine(
                 D2D1::Point2F(layout.fields[i].positionX, layout.fields[i].positionY),
                 D2D1::Point2F(layout.fields[i].positionX +layout.fields[i].sizeX, layout.fields[i].positionY + layout.fields[i].sizeY),

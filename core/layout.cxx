@@ -1,9 +1,10 @@
 #include "layout.h"
 #include <algorithm>
 
-Layout::Layout(const int fieldsX, const int fieldsY)
-	: fieldsX{ fieldsX }, fieldsY{ fieldsY }, sizeX{ 100 }, sizeY{ 100 },
-	numberOfFields{ (size_t)fieldsX * fieldsY }, fields{ new FieldPosition[numberOfFields] }
+Layout::Layout(const int fieldsX, const int fieldsY):
+	sizeX{ 100 },
+	sizeY{ 100 },
+	TableLayoutBase(fieldsX, fieldsY)
 {
 	RecalculateLayout();
 }
@@ -48,8 +49,4 @@ void Layout::RecalculateLayout()
 			fields[index].positionY = i * fieldSize + offsetY;
 		}
 	}
-}
-
-inline size_t Layout::positionToIndex(int x, int y) {
-	return (size_t)y * this->fieldsX + x;
 }

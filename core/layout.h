@@ -1,8 +1,8 @@
 #pragma once
 
-#include <iostream>
+#include "basetable.h"
 
-struct FieldPosition {
+struct FieldShapeAndPosition {
 
 	float sizeX = 10;
 	float sizeY = 10;
@@ -12,23 +12,15 @@ struct FieldPosition {
 
 };
 
-class Layout {
-
+class Layout: public TableLayoutBase<FieldShapeAndPosition> {
 
 private:
 	float sizeX;
 	float sizeY;
 
 	void RecalculateLayout();
-	size_t positionToIndex(int x, int y);
 
 public:
-	const int fieldsX;
-	const int fieldsY;
-
-	const size_t numberOfFields;
-	std::unique_ptr<FieldPosition[]> fields;
-
 	Layout(const int fieldsX, const int fieldsY);
 
 	void ChangeSize(float sizeX, float sizeY);
