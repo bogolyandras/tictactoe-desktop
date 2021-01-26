@@ -39,6 +39,7 @@ private:
     std::unique_ptr<ID2D1Factory> pFactory;
     std::unique_ptr<ID2D1HwndRenderTarget> pRenderTarget;
     std::unique_ptr<ID2D1SolidColorBrush> backgroundBrush;
+    std::unique_ptr<ID2D1SolidColorBrush> selectedBackgroundBrush;
     std::unique_ptr<ID2D1SolidColorBrush> borderBrush;
     std::unique_ptr<ID2D1SolidColorBrush> player1Brush;
     std::unique_ptr<ID2D1SolidColorBrush> player2Brush;
@@ -51,10 +52,15 @@ private:
 public:
     MainWindowLogic(HWND m_hwnd);
 
-    void    CalculateLayout();
-    void    OnPaint();
-    void    OnResize();
-    void    OnClose();
+    void CalculateLayout();
+    void OnPaint();
+    void OnResize();
+    void OnClose();
+
+    void keyPressUp();
+    void keyPressDown();
+    void keyPressLeft();
+    void keyPressRight();
 
 };
 
@@ -78,6 +84,7 @@ MainWindowLogic::MainWindowLogic(HWND m_hwnd) :
     D2D1_SIZE_U size = direct2d::get_size_of_window(m_hwnd);
     pRenderTarget = direct2d::create_render_target(pFactory.get(), m_hwnd, size);
     backgroundBrush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::White);
+    selectedBackgroundBrush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::LightBlue);
     borderBrush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::DarkOrange);
     player1Brush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::PaleVioletRed);
     player2Brush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::DarkGreen);
@@ -110,6 +117,27 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         return 0;
     case WM_SIZE:
         mainWindowLogic->OnResize();
+        return 0;
+    case WM_KEYDOWN:
+        switch (wParam)
+        {
+        case VK_LEFT:
+            mainWindowLogic->keyPressLeft();
+            break;
+        case VK_RIGHT:
+            mainWindowLogic->keyPressRight();
+            break;
+        case VK_DOWN:
+            mainWindowLogic->keyPressDown();
+            break;
+        case VK_UP:
+            mainWindowLogic->keyPressUp();
+            break;
+        default:
+            return DefWindowProc(m_hwnd, uMsg, wParam, lParam);
+        }
+
+        InvalidateRect(m_hwnd, NULL, TRUE);
         return 0;
     default:
         return DefWindowProc(m_hwnd, uMsg, wParam, lParam);
@@ -177,10 +205,18 @@ void MainWindowLogic::OnPaint()
             layout.fields[i].positionX + layout.fields[i].sizeX - halfBorder,
             layout.fields[i].positionY + layout.fields[i].sizeY - halfBorder
         );
-        pRenderTarget->FillRectangle(rect, backgroundBrush.get());
 
+        ID2D1SolidColorBrush* selectedBackgroundBrushP;
+        if (i == table.positionAsIndex()) {
+            selectedBackgroundBrushP = selectedBackgroundBrush.get();
+        }
+        else {
+            selectedBackgroundBrushP = backgroundBrush.get();
+        }
         
-        if (table.fields[i] == FieldState::Naught) {
+        pRenderTarget->FillRectangle(rect, selectedBackgroundBrushP);
+        
+        if (table.fields[i].fieldState == FieldState::Naught) {
             const float x = layout.fields[i].positionX + (layout.fields[i].sizeX / 2.0);
             const float y = layout.fields[i].positionY + (layout.fields[i].sizeY / 2.0);
             const float radius = min(layout.fields[i].sizeX / 2, layout.fields[i].sizeY / 2);
@@ -189,9 +225,7 @@ void MainWindowLogic::OnPaint()
             pRenderTarget->FillEllipse(ellipse, player1Brush.get());
             ellipse = D2D1::Ellipse(D2D1::Point2F(x, y), radius * 0.8, radius * 0.8);
             pRenderTarget->FillEllipse(ellipse, backgroundBrush.get());
-        }
-
-        if (table.fields[i] == FieldState::Cross) {
+        } else if (table.fields[i].fieldState == FieldState::Cross) {
             pRenderTarget->DrawLine(
                 D2D1::Point2F(layout.fields[i].positionX, layout.fields[i].positionY),
                 D2D1::Point2F(layout.fields[i].positionX +layout.fields[i].sizeX, layout.fields[i].positionY + layout.fields[i].sizeY),
@@ -239,4 +273,24 @@ void MainWindowLogic::OnClose()
         DestroyWindow(m_hwnd);
     }
     // Else: User canceled. Do nothing.
+}
+
+void MainWindowLogic::keyPressUp()
+{
+    table.keyPressUp();
+}
+
+void MainWindowLogic::keyPressDown()
+{
+    table.keyPressDown();
+}
+
+void MainWindowLogic::keyPressLeft()
+{
+    table.keyPressLeft();
+}
+
+void MainWindowLogic::keyPressRight()
+{
+    table.keyPressRight();
 }
