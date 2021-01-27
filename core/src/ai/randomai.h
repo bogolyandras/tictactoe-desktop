@@ -1,7 +1,7 @@
 #include "ai.h"
 
 class RandomAi : public Ai {
-
+public:
 	Position calculateAnswer(TableView* tableView) {
 		const int fieldsX = tableView->fieldsX();
 		const int fieldsY = tableView->fieldsY();

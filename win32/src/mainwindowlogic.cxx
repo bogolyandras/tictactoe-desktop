@@ -1,9 +1,12 @@
 #include "mainwindowlogic.h"
 
+#include <ai/tableviewimpl.h>
+
 MainWindowLogic::MainWindowLogic(HWND m_hwnd) :
     m_hwnd{ m_hwnd },
     layout(35, 25),
-    table(35, 25)
+    table(35, 25),
+    ai()
 {
     pFactory = direct2d::create_factory();
     D2D1_SIZE_U size = direct2d::get_size_of_window(m_hwnd);
@@ -154,5 +157,10 @@ void MainWindowLogic::OnMouseMove(int positionX, int positionY)
 
 void MainWindowLogic::OnMouseClick(int positionX, int positionY)
 {
-    layout.OnMouseClick(positionX, positionY);
+    layout.OnMouseMove(positionX, positionY);
+    Position p = layout.mousePosition();
+    table.mark(p, FieldState::Naught);
+    TableViewImplementation tw(&table, FieldState::Cross);
+    Position p2 = ai.calculateAnswer(&tw);
+    table.mark(p2, FieldState::Cross);
 }

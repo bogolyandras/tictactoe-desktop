@@ -8,6 +8,7 @@
 //TicTacToe core library
 #include <layout.h>
 #include <table.h>
+#include <ai/randomai.h>
 
 class MainWindowLogic
 {
@@ -28,6 +29,7 @@ private:
 
     Layout layout;
     Table table;
+    RandomAi ai;
 
 public:
     MainWindowLogic(HWND m_hwnd);

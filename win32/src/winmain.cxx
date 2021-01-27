@@ -85,7 +85,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         InvalidateRect(m_hwnd, NULL, TRUE);
         return 0;
 
-    case WM_LBUTTONDOWN:
+    case WM_LBUTTONUP:
         {
             const int xPos = GET_X_LPARAM(lParam);
             const int yPos = GET_Y_LPARAM(lParam);

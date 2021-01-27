@@ -27,13 +27,14 @@ private:
 	float sizeX;
 	float sizeY;
 
-	Position cursorPosition;
+	
 
 	int mousePositionX = -1;
 	int mousePositionY = -1;
 
 	void RecalculateCommonFieldStructure();
 	void RecalculateLayout();
+
 	size_t cursorPositionAsIndex();
 	size_t mousePositionAsIndex();
 
@@ -42,6 +43,9 @@ public:
 
 	Layout(const int fieldsX, const int fieldsY);
 
+	Position cursorPosition;
+	Position mousePosition();
+
 	void ChangeSize(float sizeX, float sizeY);
 
 	void OnKeyPressUp();
@@ -49,6 +53,5 @@ public:
 	void OnKeyPressLeft();
 	void OnKeyPressRight();
 	void OnMouseMove(int positionX, int positionY);
-	void OnMouseClick(int positionX, int positionY);
 
 };
