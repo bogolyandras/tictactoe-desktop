@@ -21,7 +21,7 @@ public:
 	Table(const int fieldsX, const int fieldsY);
 
 	FieldState get(Position position);
-	void mark(Position position, FieldState fieldState);
+	bool mark(Position position, FieldState fieldState);
 	void reset();
 
 };

@@ -78,6 +78,10 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         case VK_UP:
             mainWindowLogic->OnKeyPressUp();
             break;
+        case VK_RETURN:
+        case VK_SPACE:
+            mainWindowLogic->OnKeyPressPlace();
+            break;
         default:
             return DefWindowProc(m_hwnd, uMsg, wParam, lParam);
         }

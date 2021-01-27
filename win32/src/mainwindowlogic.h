@@ -31,6 +31,8 @@ private:
     Table table;
     RandomAi ai;
 
+    void handlePosition(Position p);
+
 public:
     MainWindowLogic(HWND m_hwnd);
 
@@ -43,6 +45,7 @@ public:
     void OnKeyPressDown();
     void OnKeyPressLeft();
     void OnKeyPressRight();
+    void OnKeyPressPlace();
 
     void OnMouseMove(int positionX, int positionY);
     void OnMouseClick(int positionX, int positionY);

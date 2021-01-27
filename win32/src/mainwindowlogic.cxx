@@ -150,6 +150,11 @@ void MainWindowLogic::OnKeyPressRight()
     layout.OnKeyPressRight();
 }
 
+void MainWindowLogic::OnKeyPressPlace()
+{
+    handlePosition(layout.cursorPosition);
+}
+
 void MainWindowLogic::OnMouseMove(int positionX, int positionY)
 {
     layout.OnMouseMove(positionX, positionY);
@@ -159,8 +164,17 @@ void MainWindowLogic::OnMouseClick(int positionX, int positionY)
 {
     layout.OnMouseMove(positionX, positionY);
     Position p = layout.mousePosition();
-    table.mark(p, FieldState::Naught);
+    handlePosition(p);
+}
+
+void MainWindowLogic::handlePosition(Position p)
+{
+    const bool marked = table.mark(p, FieldState::Naught);
+    if (!marked) {
+        return;
+    }
     TableViewImplementation tw(&table, FieldState::Cross);
     Position p2 = ai.calculateAnswer(&tw);
     table.mark(p2, FieldState::Cross);
 }
+
