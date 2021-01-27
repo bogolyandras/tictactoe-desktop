@@ -41,6 +41,7 @@ private:
     std::unique_ptr<ID2D1HwndRenderTarget> pRenderTarget;
     std::unique_ptr<ID2D1SolidColorBrush> backgroundBrush;
     std::unique_ptr<ID2D1SolidColorBrush> cursorSelectedBackgroundBrush;
+    std::unique_ptr<ID2D1SolidColorBrush> mouseOverBackgroundBrush;
     std::unique_ptr<ID2D1SolidColorBrush> borderBrush;
     std::unique_ptr<ID2D1SolidColorBrush> player1Brush;
     std::unique_ptr<ID2D1SolidColorBrush> player2Brush;
@@ -72,8 +73,11 @@ class MainWindow : public BaseWindow<MainWindow>
 {
 private:
     std::unique_ptr<MainWindowLogic> mainWindowLogic;
+    bool trackingMouse = false;
+    void trackMouse();
+
 public:
-    MainWindow() { }
+    MainWindow() {}
 
     PCWSTR  ClassName() const { return L"TicTacToe Window Class"; }
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -89,10 +93,25 @@ MainWindowLogic::MainWindowLogic(HWND m_hwnd) :
     pRenderTarget = direct2d::create_render_target(pFactory.get(), m_hwnd, size);
     backgroundBrush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::White);
     cursorSelectedBackgroundBrush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::LightBlue);
+    mouseOverBackgroundBrush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::LightGreen);
     borderBrush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::DarkOrange);
     player1Brush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::PaleVioletRed);
     player2Brush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::DarkGreen);
     CalculateLayout();
+}
+
+void MainWindow::trackMouse()
+{
+    TRACKMOUSEEVENT t = {};
+    t.cbSize = sizeof(TRACKMOUSEEVENT);
+    t.dwFlags = TME_LEAVE;
+    t.hwndTrack = m_hwnd;
+    t.dwHoverTime = HOVER_DEFAULT;
+    const bool mouseTrackRegistration = TrackMouseEvent(&t);
+    if (!mouseTrackRegistration) {
+        throw GetLastError();
+    }
+    trackingMouse = true;
 }
 
 LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -148,13 +167,25 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
             const int xPos = GET_X_LPARAM(lParam);
             const int yPos = GET_Y_LPARAM(lParam);
+            mainWindowLogic->OnMouseClick(xPos, yPos);
         }
+        InvalidateRect(m_hwnd, NULL, TRUE);
         return 0;
     case WM_MOUSEMOVE:
+        if (!trackingMouse) {
+            trackMouse();
+        }
         {
             const int xPos = GET_X_LPARAM(lParam);
             const int yPos = GET_Y_LPARAM(lParam);
+            mainWindowLogic->OnMouseMove(xPos, yPos);
         }
+        InvalidateRect(m_hwnd, NULL, TRUE);
+        return 0;
+    case WM_MOUSELEAVE:
+        trackingMouse = false;
+        mainWindowLogic->OnMouseMove(-1, -1);
+        InvalidateRect(m_hwnd, NULL, TRUE);
         return 0;
     default:
         return DefWindowProc(m_hwnd, uMsg, wParam, lParam);
@@ -228,7 +259,7 @@ void MainWindowLogic::OnPaint()
             selectedBackgroundBrushP = cursorSelectedBackgroundBrush.get();
         }
         else if (layout.fields[i].mouseOver) {
-            selectedBackgroundBrushP = cursorSelectedBackgroundBrush.get();
+            selectedBackgroundBrushP = mouseOverBackgroundBrush.get();
         }
         else {
             selectedBackgroundBrushP = backgroundBrush.get();

@@ -62,13 +62,28 @@ size_t Layout::cursorPositionAsIndex() {
 
 size_t Layout::mousePositionAsIndex()
 {
-	if (mousePositionX < 0 || mousePositionY < 0) {
+	const bool mouseOutOfWindow = mousePositionX < 0 || mousePositionY < 0;
+	if (mouseOutOfWindow) {
 		return -1;
 	}
 
+	const bool leftOutRange = (float)mousePositionX < commonFieldStructure.offsetX;
+	const bool rightOutRange = (float)mousePositionX > sizeX - commonFieldStructure.offsetX;
+	if (leftOutRange || rightOutRange) {
+		return -1;
+	}
 
+	const bool topOutRange = (float)mousePositionY < commonFieldStructure.offsetY;
+	const bool bottomOutRange = (float)mousePositionY > sizeY - commonFieldStructure.offsetY;
+	if (topOutRange || bottomOutRange) {
+		return -1;
+	}
 
-	return -1;
+	 
+	const int mouseFieldX = (mousePositionX - commonFieldStructure.offsetX) / commonFieldStructure.size;
+	const int mouseFieldY = (mousePositionY - commonFieldStructure.offsetY) / commonFieldStructure.size;
+
+	return positionToIndex(mouseFieldX, mouseFieldY);
 }
 
 void Layout::OnKeyPressUp() {
@@ -97,10 +112,20 @@ void Layout::OnKeyPressRight() {
 
 void Layout::OnMouseMove(int positionX, int positionY)
 {
-
+	const size_t prePos = mousePositionAsIndex();
+	if (prePos >= 0) {
+		fields[prePos].mouseOver = false;
+	}
+	mousePositionX = positionX;
+	mousePositionY = positionY;
+	const size_t postPos = mousePositionAsIndex();
+	if (postPos >= 0) {
+		fields[postPos].mouseOver = true;
+	}
 }
 
 void Layout::OnMouseClick(int positionX, int positionY)
 {
-
+	mousePositionX = positionX;
+	mousePositionY = positionY;
 }
