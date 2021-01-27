@@ -1,4 +1,4 @@
-#include "direct2d.h"
+#include "win32util.h"
 
 std::unique_ptr<ID2D1Factory> direct2d::create_factory()
 {

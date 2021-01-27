@@ -2,6 +2,14 @@
 
 #include <iostream>
 
+struct Position {
+public:
+	int X = 0;
+	int Y = 0;
+	Position() : X{ 0 }, Y{ 0 } {}
+	Position(int X, int Y) : X{ X }, Y{ Y } {}
+};
+
 template <class T>
 class TableLayoutBase {
 
@@ -21,8 +29,8 @@ public:
 	}
 
 protected:
-	inline size_t positionToIndex(int x, int y) {
-		return (size_t)y * this->fieldsX + x;
+	inline size_t positionToIndex(Position position) {
+		return (size_t)position.Y * this->fieldsX + position.X;
 	}
 
 };

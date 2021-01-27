@@ -27,8 +27,7 @@ private:
 	float sizeX;
 	float sizeY;
 
-	int cursorPositionX;
-	int cursorPositionY;
+	Position cursorPosition;
 
 	int mousePositionX = -1;
 	int mousePositionY = -1;

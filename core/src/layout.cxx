@@ -5,8 +5,7 @@ Layout::Layout(const int fieldsX, const int fieldsY):
 	sizeX{ 100 },
 	sizeY{ 100 },
 	TableLayoutBase(fieldsX, fieldsY),
-	cursorPositionX(fieldsX / 2),
-	cursorPositionY(fieldsY / 2)
+	cursorPosition(fieldsX / 2, fieldsY / 2)
 {
 	RecalculateLayout();
 }
@@ -32,7 +31,6 @@ void Layout::RecalculateCommonFieldStructure() {
 		commonFieldStructure.offsetX = 0;
 	}
 
-	float offsetY;
 	if (commonFieldStructure.size < oneFieldSizeY) {
 		commonFieldStructure.offsetY = (oneFieldSizeY - commonFieldStructure.size) * fieldsY / 2;
 	}
@@ -47,7 +45,7 @@ void Layout::RecalculateLayout()
 
 	for (int i = 0; i < fieldsY; i++) {
 		for (int j = 0; j < fieldsX; j++) {
-			const size_t index = positionToIndex(j, i);
+			const size_t index = positionToIndex(Position(j, i));
 			fields[index].positionX = j * commonFieldStructure.size + commonFieldStructure.offsetX;
 			fields[index].positionY = i * commonFieldStructure.size + commonFieldStructure.offsetY;
 			fields[index].cursorOver = cursorPositionAsIndex() == index;
@@ -57,7 +55,7 @@ void Layout::RecalculateLayout()
 }
 
 size_t Layout::cursorPositionAsIndex() {
-	return positionToIndex(cursorPositionX, cursorPositionY);
+	return positionToIndex(cursorPosition);
 }
 
 size_t Layout::mousePositionAsIndex()
@@ -79,34 +77,34 @@ size_t Layout::mousePositionAsIndex()
 		return -1;
 	}
 
-	 
-	const int mouseFieldX = (mousePositionX - commonFieldStructure.offsetX) / commonFieldStructure.size;
-	const int mouseFieldY = (mousePositionY - commonFieldStructure.offsetY) / commonFieldStructure.size;
+	Position mouseField;
+	mouseField.X = (int)(mousePositionX - commonFieldStructure.offsetX) / commonFieldStructure.size;
+	mouseField.Y = (int)(mousePositionY - commonFieldStructure.offsetY) / commonFieldStructure.size;
 
-	return positionToIndex(mouseFieldX, mouseFieldY);
+	return positionToIndex(mouseField);
 }
 
 void Layout::OnKeyPressUp() {
 	fields[cursorPositionAsIndex()].cursorOver = false;
-	cursorPositionY = std::max(cursorPositionY - 1, 0);
+	cursorPosition.Y = std::max(cursorPosition.Y - 1, 0);
 	fields[cursorPositionAsIndex()].cursorOver = true;
 }
 
 void Layout::OnKeyPressDown() {
 	fields[cursorPositionAsIndex()].cursorOver = false;
-	cursorPositionY = std::min(cursorPositionY + 1, fieldsY - 1);
+	cursorPosition.Y = std::min(cursorPosition.Y + 1, fieldsY - 1);
 	fields[cursorPositionAsIndex()].cursorOver = true;
 }
 
 void Layout::OnKeyPressLeft() {
 	fields[cursorPositionAsIndex()].cursorOver = false;
-	cursorPositionX = std::max(cursorPositionX - 1, 0);
+	cursorPosition.X = std::max(cursorPosition.X - 1, 0);
 	fields[cursorPositionAsIndex()].cursorOver = true;
 }
 
 void Layout::OnKeyPressRight() {
 	fields[cursorPositionAsIndex()].cursorOver = false;
-	cursorPositionX = std::min(cursorPositionX + 1, fieldsX - 1);
+	cursorPosition.X = std::min(cursorPosition.X + 1, fieldsX - 1);
 	fields[cursorPositionAsIndex()].cursorOver = true;
 }
 
