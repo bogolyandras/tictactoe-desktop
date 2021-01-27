@@ -8,9 +8,10 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
 // Exclude rarely-used stuff from Windows headers
 #define WIN32_LEAN_AND_MEAN
-
+#define NOMINMAX
 // Windows Header Files
 #include <windows.h>
+#include <windowsx.h>
 
 // C++ Header files
 #include <iostream>
@@ -39,7 +40,7 @@ private:
     std::unique_ptr<ID2D1Factory> pFactory;
     std::unique_ptr<ID2D1HwndRenderTarget> pRenderTarget;
     std::unique_ptr<ID2D1SolidColorBrush> backgroundBrush;
-    std::unique_ptr<ID2D1SolidColorBrush> selectedBackgroundBrush;
+    std::unique_ptr<ID2D1SolidColorBrush> cursorSelectedBackgroundBrush;
     std::unique_ptr<ID2D1SolidColorBrush> borderBrush;
     std::unique_ptr<ID2D1SolidColorBrush> player1Brush;
     std::unique_ptr<ID2D1SolidColorBrush> player2Brush;
@@ -57,10 +58,13 @@ public:
     void OnResize();
     void OnClose();
 
-    void keyPressUp();
-    void keyPressDown();
-    void keyPressLeft();
-    void keyPressRight();
+    void OnKeyPressUp();
+    void OnKeyPressDown();
+    void OnKeyPressLeft();
+    void OnKeyPressRight();
+
+    void OnMouseMove(int positionX, int positionY);
+    void OnMouseClick(int positionX, int positionY);
 
 };
 
@@ -84,7 +88,7 @@ MainWindowLogic::MainWindowLogic(HWND m_hwnd) :
     D2D1_SIZE_U size = direct2d::get_size_of_window(m_hwnd);
     pRenderTarget = direct2d::create_render_target(pFactory.get(), m_hwnd, size);
     backgroundBrush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::White);
-    selectedBackgroundBrush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::LightBlue);
+    cursorSelectedBackgroundBrush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::LightBlue);
     borderBrush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::DarkOrange);
     player1Brush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::PaleVioletRed);
     player2Brush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::DarkGreen);
@@ -122,22 +126,35 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         switch (wParam)
         {
         case VK_LEFT:
-            mainWindowLogic->keyPressLeft();
+            mainWindowLogic->OnKeyPressLeft();
             break;
         case VK_RIGHT:
-            mainWindowLogic->keyPressRight();
+            mainWindowLogic->OnKeyPressRight();
             break;
         case VK_DOWN:
-            mainWindowLogic->keyPressDown();
+            mainWindowLogic->OnKeyPressDown();
             break;
         case VK_UP:
-            mainWindowLogic->keyPressUp();
+            mainWindowLogic->OnKeyPressUp();
             break;
         default:
             return DefWindowProc(m_hwnd, uMsg, wParam, lParam);
         }
 
         InvalidateRect(m_hwnd, NULL, TRUE);
+        return 0;
+
+    case WM_LBUTTONDOWN:
+        {
+            const int xPos = GET_X_LPARAM(lParam);
+            const int yPos = GET_Y_LPARAM(lParam);
+        }
+        return 0;
+    case WM_MOUSEMOVE:
+        {
+            const int xPos = GET_X_LPARAM(lParam);
+            const int yPos = GET_Y_LPARAM(lParam);
+        }
         return 0;
     default:
         return DefWindowProc(m_hwnd, uMsg, wParam, lParam);
@@ -190,25 +207,28 @@ void MainWindowLogic::OnPaint()
 
         D2D1_RECT_F rect = D2D1::RectF(layout.fields[i].positionX,
                                        layout.fields[i].positionY,
-                                       layout.fields[i].positionX + layout.fields[i].sizeX,
-                                       layout.fields[i].positionY + layout.fields[i].sizeY
+                                       layout.fields[i].positionX + layout.commonFieldStructure.size,
+                                       layout.fields[i].positionY + layout.commonFieldStructure.size
         );
         pRenderTarget->FillRectangle(rect, borderBrush.get());
 
         D2D1_SIZE_F size = pRenderTarget->GetSize();
-        const float minSize =  min(size.width, size.height);
+        const float minSize = std::min(size.width, size.height);
 
         const float border = minSize / 400;
         const float halfBorder = minSize / 800;
         rect = D2D1::RectF(layout.fields[i].positionX + halfBorder,
             layout.fields[i].positionY + halfBorder,
-            layout.fields[i].positionX + layout.fields[i].sizeX - halfBorder,
-            layout.fields[i].positionY + layout.fields[i].sizeY - halfBorder
+            layout.fields[i].positionX + layout.commonFieldStructure.size - halfBorder,
+            layout.fields[i].positionY + layout.commonFieldStructure.size - halfBorder
         );
 
         ID2D1SolidColorBrush* selectedBackgroundBrushP;
-        if (i == table.positionAsIndex()) {
-            selectedBackgroundBrushP = selectedBackgroundBrush.get();
+        if (layout.fields[i].cursorOver) {
+            selectedBackgroundBrushP = cursorSelectedBackgroundBrush.get();
+        }
+        else if (layout.fields[i].mouseOver) {
+            selectedBackgroundBrushP = cursorSelectedBackgroundBrush.get();
         }
         else {
             selectedBackgroundBrushP = backgroundBrush.get();
@@ -217,9 +237,9 @@ void MainWindowLogic::OnPaint()
         pRenderTarget->FillRectangle(rect, selectedBackgroundBrushP);
         
         if (table.fields[i].fieldState == FieldState::Naught) {
-            const float x = layout.fields[i].positionX + (layout.fields[i].sizeX / 2.0);
-            const float y = layout.fields[i].positionY + (layout.fields[i].sizeY / 2.0);
-            const float radius = min(layout.fields[i].sizeX / 2, layout.fields[i].sizeY / 2);
+            const float x = layout.fields[i].positionX + (layout.commonFieldStructure.size / 2.0);
+            const float y = layout.fields[i].positionY + (layout.commonFieldStructure.size / 2.0);
+            const float radius = std::min(layout.commonFieldStructure.size / 2.0f, layout.commonFieldStructure.size / 2.0f);
 
             D2D1_ELLIPSE ellipse = D2D1::Ellipse(D2D1::Point2F(x, y), radius, radius);
             pRenderTarget->FillEllipse(ellipse, player1Brush.get());
@@ -228,14 +248,14 @@ void MainWindowLogic::OnPaint()
         } else if (table.fields[i].fieldState == FieldState::Cross) {
             pRenderTarget->DrawLine(
                 D2D1::Point2F(layout.fields[i].positionX, layout.fields[i].positionY),
-                D2D1::Point2F(layout.fields[i].positionX +layout.fields[i].sizeX, layout.fields[i].positionY + layout.fields[i].sizeY),
+                D2D1::Point2F(layout.fields[i].positionX +layout.commonFieldStructure.size, layout.fields[i].positionY + layout.commonFieldStructure.size),
                     player2Brush.get(),
                 1.5f
             );
 
             pRenderTarget->DrawLine(
-                D2D1::Point2F(layout.fields[i].positionX, layout.fields[i].positionY + layout.fields[i].sizeY),
-                D2D1::Point2F(layout.fields[i].positionX + layout.fields[i].sizeX, layout.fields[i].positionY),
+                D2D1::Point2F(layout.fields[i].positionX, layout.fields[i].positionY + layout.commonFieldStructure.size),
+                D2D1::Point2F(layout.fields[i].positionX + layout.commonFieldStructure.size, layout.fields[i].positionY),
                 player2Brush.get(),
                 border
             );
@@ -275,22 +295,32 @@ void MainWindowLogic::OnClose()
     // Else: User canceled. Do nothing.
 }
 
-void MainWindowLogic::keyPressUp()
+void MainWindowLogic::OnKeyPressUp()
 {
-    table.keyPressUp();
+    layout.OnKeyPressUp();
 }
 
-void MainWindowLogic::keyPressDown()
+void MainWindowLogic::OnKeyPressDown()
 {
-    table.keyPressDown();
+    layout.OnKeyPressDown();
 }
 
-void MainWindowLogic::keyPressLeft()
+void MainWindowLogic::OnKeyPressLeft()
 {
-    table.keyPressLeft();
+    layout.OnKeyPressLeft();
 }
 
-void MainWindowLogic::keyPressRight()
+void MainWindowLogic::OnKeyPressRight()
 {
-    table.keyPressRight();
+    layout.OnKeyPressRight();
+}
+
+void MainWindowLogic::OnMouseMove(int positionX, int positionY)
+{
+    layout.OnMouseMove(positionX, positionY);
+}
+
+void MainWindowLogic::OnMouseClick(int positionX, int positionY)
+{
+    layout.OnMouseClick(positionX, positionY);
 }
