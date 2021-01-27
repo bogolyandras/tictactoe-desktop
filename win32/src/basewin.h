@@ -34,13 +34,14 @@ public:
     BOOL Create(
         PCWSTR lpWindowName,
         DWORD dwStyle,
+        HMENU hMenu,
+        HICON hIcon,
         DWORD dwExStyle = 0,
         int x = CW_USEDEFAULT,
         int y = CW_USEDEFAULT,
         int nWidth = CW_USEDEFAULT,
         int nHeight = CW_USEDEFAULT,
-        HWND hWndParent = 0,
-        HMENU hMenu = 0
+        HWND hWndParent = 0
     )
     {
         WNDCLASS wc = { 0 };
@@ -49,6 +50,7 @@ public:
         wc.hInstance = GetModuleHandle(NULL);
         wc.lpszClassName = ClassName();
         wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+        wc.hIcon = hIcon;
 
         RegisterClass(&wc);
 

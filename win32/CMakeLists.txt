@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Add source to this project's executable.
-add_executable (TicTacToeWin32 WIN32 "src/winmain.cxx" "src/win32util.cxx" "src/mainwindowlogic.cxx")
+add_executable (TicTacToeWin32 WIN32 "src/winmain.cxx" "src/win32util.cxx" "src/mainwindowlogic.cxx" "resource/resource.rc")
 target_link_libraries(TicTacToeWin32 PUBLIC ComCtl32.lib)
 target_link_libraries(TicTacToeWin32 PUBLIC TicTacToeCore)
 

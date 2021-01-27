@@ -3,6 +3,7 @@
 //Internal files
 #include "mainwindowlogic.h"
 #include "basewin.h"
+#include "../resource/resource.h"
 
 //Com API
 #include <shobjidl.h>
@@ -123,7 +124,12 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 {
     MainWindow mainWindow;
 
-    if (!mainWindow.Create(L"TicTacToe", WS_OVERLAPPEDWINDOW))
+    if (!mainWindow.Create(
+        L"TicTacToe",
+        WS_OVERLAPPEDWINDOW,
+        LoadMenu(hInstance, MAKEINTRESOURCE(IDR_MENU)),
+        LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON))
+    ))
     {
         return -1;
     }
