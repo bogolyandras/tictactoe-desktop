@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Add source to this project's executable.
-add_executable (TicTacToeWin32 WIN32 "winmain.cxx" "direct2d.cxx")
+add_executable (TicTacToeWin32 WIN32 "src/winmain.cxx" "src/direct2d.cxx")
 target_link_libraries(TicTacToeWin32 PUBLIC ComCtl32.lib)
 target_link_libraries(TicTacToeWin32 PUBLIC TicTacToeCore)
 
@@ -15,6 +15,6 @@ target_include_directories(TicTacToeWin32 PUBLIC $ENV{UniversalCRTSdkDir}/Includ
 target_include_directories(TicTacToeWin32 PUBLIC $ENV{UniversalCRTSdkDir}/Include/10.0.10056.0/ucrt)
 
 # Link core library
-target_include_directories(TicTacToeWin32 PUBLIC "${PROJECT_BINARY_DIR}" "${PROJECT_SOURCE_DIR}/core")
+target_include_directories(TicTacToeWin32 PUBLIC "${PROJECT_BINARY_DIR}" "${PROJECT_SOURCE_DIR}/core/src")
 
 # TODO: Add tests and install targets if needed.

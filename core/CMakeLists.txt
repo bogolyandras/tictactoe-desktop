@@ -6,6 +6,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Add source to this project's executable.
-add_library (TicTacToeCore STATIC "layout.cxx" "table.cxx")
+add_library (TicTacToeCore STATIC "src/layout.cxx" "src/table.cxx")
 
 # TODO: Add tests and install targets if needed.
