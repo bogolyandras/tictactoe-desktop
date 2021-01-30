@@ -11,4 +11,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Include sub-projects.
 add_subdirectory(core)
-add_subdirectory(win32)
+if (WIN32)
+    add_subdirectory(win32)
+endif (WIN32)
+if (UNIX)
+    add_subdirectory(gtk3)
+endif (UNIX)
+
