@@ -59,10 +59,13 @@ public:
             nWidth, nHeight, hWndParent, hMenu, GetModuleHandle(NULL), this
         );
 
+        m_menu = hMenu;
+
         return (m_hwnd ? TRUE : FALSE);
     }
 
     HWND Window() const { return m_hwnd; }
+    HMENU Menu() const { return m_menu; }
 
 protected:
 
@@ -70,4 +73,5 @@ protected:
     virtual LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) = 0;
 
     HWND m_hwnd;
+    HMENU m_menu;
 };

@@ -32,8 +32,10 @@ private:
     Layout layout;
     Table table;
     RandomAi ai;
+    bool IAmStartingTheGame;
 
     void handlePosition(Position p);
+    void handleOpponent();
 
 public:
     MainWindowLogic(HWND m_hwnd);
@@ -50,6 +52,7 @@ public:
     void OnKeyPressPlace();
 
     void OnNew();
+    void OnIAmStartingTheGameChange(bool newValue);
 
     void OnMouseMove(int positionX, int positionY);
     void OnMouseClick(int positionX, int positionY);

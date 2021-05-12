@@ -9,6 +9,10 @@ BEGIN
 		MENUITEM "&New\tCtrl+N", ID_FILE_NEW
 		MENUITEM "E&xit\tAlt+F4", ID_FILE_EXIT
 	END
+	POPUP "&Options"
+	BEGIN
+		MENUITEM "I am starting the game", ID_OPTIONS_IAMSTARTING, CHECKED
+	END
 	POPUP "&Help"
 	BEGIN
 		MENUITEM "&About", ID_HELP_ABOUT

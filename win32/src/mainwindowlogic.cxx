@@ -6,7 +6,8 @@ MainWindowLogic::MainWindowLogic(HWND m_hwnd) :
     m_hwnd{ m_hwnd },
     layout(35, 25),
     table(35, 25),
-    ai()
+    ai(),
+    IAmStartingTheGame{ true }
 {
     pFactory = direct2d::create_factory();
     D2D1_SIZE_U size = direct2d::get_size_of_window(m_hwnd);
@@ -166,7 +167,20 @@ void MainWindowLogic::OnKeyPressPlace()
 void MainWindowLogic::OnNew()
 {
     table.reset();
+    if (!IAmStartingTheGame) {
+        handleOpponent();
+    }
     InvalidateRect(m_hwnd, NULL, FALSE);
+}
+
+void MainWindowLogic::OnIAmStartingTheGameChange(bool newValue)
+{
+    IAmStartingTheGame = newValue;
+    if (table.getTableState() == TableState::AnybodyToPlace) {
+        //Start a new game in case the table is untouched
+        //triggering the AI player to place a mark
+        OnNew();
+    }
 }
 
 void MainWindowLogic::OnMouseMove(int positionX, int positionY)
@@ -185,15 +199,20 @@ void MainWindowLogic::handlePosition(Position p)
 {
     const bool marked = table.mark(p, FieldState::Naught);
     if (table.getTableState() == TableState::NaughtWins) {
-        MessageBox(m_hwnd, L"You won!", L"Confirmation on exit", MB_OK);
+        MessageBox(m_hwnd, L"You won!", L"Report on game state change", MB_OK);
     }
     if (!marked) {
         return;
     }
+    handleOpponent();
+}
+
+void MainWindowLogic::handleOpponent()
+{
     TableViewImplementation tw(&table, FieldState::Cross);
     Position p2 = ai.calculateAnswer(&tw);
     table.mark(p2, FieldState::Cross);
     if (table.getTableState() == TableState::CrossWins) {
-        MessageBox(m_hwnd, L"You lost!", L"Confirmation on exit", MB_OK);
+        MessageBox(m_hwnd, L"You lost!", L"Report on game state change", MB_OK);
     }
 }

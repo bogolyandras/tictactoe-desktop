@@ -63,6 +63,29 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             case ID_FILE_NEW:
                 mainWindowLogic->OnNew();
                 return 0;
+            case ID_OPTIONS_IAMSTARTING:
+            {
+                MENUITEMINFO minfo = {};
+                minfo.cbSize = sizeof(MENUITEMINFO);
+                minfo.fMask = MIIM_STATE;
+                const bool success = GetMenuItemInfo(m_menu, ID_OPTIONS_IAMSTARTING, false, &minfo);
+                if (!success) {
+                    throw L"Error happened!";
+                }
+
+                const bool previousCheckedState = minfo.fState & MFS_CHECKED;
+
+                if (previousCheckedState) {
+                    minfo.fState = MFS_UNCHECKED;
+                }
+                else {
+                    minfo.fState = MFS_CHECKED;
+                }
+                SetMenuItemInfo(m_menu, ID_OPTIONS_IAMSTARTING, false, &minfo);
+                mainWindowLogic->OnIAmStartingTheGameChange(!previousCheckedState);
+
+                return 0;
+            }
             default:
                 return DefWindowProc(m_hwnd, uMsg, wParam, lParam);
         }
