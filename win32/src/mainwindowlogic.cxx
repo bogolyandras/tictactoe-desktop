@@ -14,6 +14,8 @@ MainWindowLogic::MainWindowLogic(HWND m_hwnd) :
     backgroundBrush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::White);
     cursorSelectedBackgroundBrush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::LightBlue);
     mouseOverBackgroundBrush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::LightGreen);
+    lastMoveBackgroundBrush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::BlanchedAlmond);
+    highlighBackgroundBrush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::Violet);
     borderBrush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::DarkOrange);
     player1Brush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::PaleVioletRed);
     player2Brush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::DarkGreen);
@@ -63,6 +65,12 @@ void MainWindowLogic::OnPaint()
         }
         else if (layout.fields[i].mouseOver) {
             selectedBackgroundBrushP = mouseOverBackgroundBrush.get();
+        }
+        else if (table.fields[i].lastMove) {
+            selectedBackgroundBrushP = lastMoveBackgroundBrush.get();
+        }
+        else if (table.fields[i].highlight) {
+            selectedBackgroundBrushP = highlighBackgroundBrush.get();
         }
         else {
             selectedBackgroundBrushP = backgroundBrush.get();
@@ -177,4 +185,3 @@ void MainWindowLogic::handlePosition(Position p)
     Position p2 = ai.calculateAnswer(&tw);
     table.mark(p2, FieldState::Cross);
 }
-

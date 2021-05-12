@@ -21,6 +21,8 @@ private:
     std::unique_ptr<ID2D1SolidColorBrush> backgroundBrush;
     std::unique_ptr<ID2D1SolidColorBrush> cursorSelectedBackgroundBrush;
     std::unique_ptr<ID2D1SolidColorBrush> mouseOverBackgroundBrush;
+    std::unique_ptr<ID2D1SolidColorBrush> lastMoveBackgroundBrush;
+    std::unique_ptr<ID2D1SolidColorBrush> highlighBackgroundBrush;
     std::unique_ptr<ID2D1SolidColorBrush> borderBrush;
     std::unique_ptr<ID2D1SolidColorBrush> player1Brush;
     std::unique_ptr<ID2D1SolidColorBrush> player2Brush;
