@@ -163,6 +163,12 @@ void MainWindowLogic::OnKeyPressPlace()
     handlePosition(layout.cursorPosition);
 }
 
+void MainWindowLogic::OnNew()
+{
+    table.reset();
+    InvalidateRect(m_hwnd, NULL, FALSE);
+}
+
 void MainWindowLogic::OnMouseMove(int positionX, int positionY)
 {
     layout.OnMouseMove(positionX, positionY);

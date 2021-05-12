@@ -60,6 +60,9 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             case ID_FILE_EXIT:
                 mainWindowLogic->OnClose();
                 return 0;
+            case ID_FILE_NEW:
+                mainWindowLogic->OnNew();
+                return 0;
             default:
                 return DefWindowProc(m_hwnd, uMsg, wParam, lParam);
         }

@@ -49,6 +49,8 @@ public:
     void OnKeyPressRight();
     void OnKeyPressPlace();
 
+    void OnNew();
+
     void OnMouseMove(int positionX, int positionY);
     void OnMouseClick(int positionX, int positionY);
 
