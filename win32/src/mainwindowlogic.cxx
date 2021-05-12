@@ -198,12 +198,13 @@ void MainWindowLogic::OnMouseClick(int positionX, int positionY)
 void MainWindowLogic::handlePosition(Position p)
 {
     const bool marked = table.mark(p, FieldState::Naught);
-    if (table.getTableState() == TableState::NaughtWins) {
-        MessageBox(m_hwnd, L"You won!", L"Report on game state change", MB_OK);
-    }
     if (!marked) {
         return;
     }
+    if (table.getTableState() == TableState::NaughtWins) {
+        MessageBox(m_hwnd, L"You won!", L"Report on game state change", MB_OK);
+    }
+    
     handleOpponent();
 }
 
