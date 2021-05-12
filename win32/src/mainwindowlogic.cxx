@@ -184,10 +184,16 @@ void MainWindowLogic::OnMouseClick(int positionX, int positionY)
 void MainWindowLogic::handlePosition(Position p)
 {
     const bool marked = table.mark(p, FieldState::Naught);
+    if (table.getTableState() == TableState::NaughtWins) {
+        MessageBox(m_hwnd, L"You won!", L"Confirmation on exit", MB_OK);
+    }
     if (!marked) {
         return;
     }
     TableViewImplementation tw(&table, FieldState::Cross);
     Position p2 = ai.calculateAnswer(&tw);
     table.mark(p2, FieldState::Cross);
+    if (table.getTableState() == TableState::CrossWins) {
+        MessageBox(m_hwnd, L"You lost!", L"Confirmation on exit", MB_OK);
+    }
 }
