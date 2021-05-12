@@ -54,6 +54,15 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_CLOSE:
         mainWindowLogic->OnClose();
         return 0;
+    case WM_COMMAND:
+        switch (LOWORD(wParam))
+        {
+            case ID_FILE_EXIT:
+                mainWindowLogic->OnClose();
+                return 0;
+            default:
+                return DefWindowProc(m_hwnd, uMsg, wParam, lParam);
+        }
     case WM_DESTROY:
         mainWindowLogic.release();
         PostQuitMessage(0);
@@ -136,13 +145,21 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 
     ShowWindow(mainWindow.Window(), nCmdShow);
 
+    HACCEL hAccel = LoadAccelerators(hInstance, MAKEINTRESOURCE(MENU_ACCELERATOR));
+
     // Run the message loop.
 
     MSG msg = { };
     while (GetMessage(&msg, NULL, 0, 0))
     {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
+        if (!TranslateAccelerator(
+            mainWindow.Window(),
+            hAccel,
+            &msg))
+        {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
     }
 
     return 0;
