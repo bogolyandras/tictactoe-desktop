@@ -1,3 +1,5 @@
 #define IDI_ICON 101
 #define IDR_MENU 102
 #define ID_FILE_EXIT 4001
+#define ID_FILE_NEW	4002
+#define ID_HELP_ABOUT 5001
