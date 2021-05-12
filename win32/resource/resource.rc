@@ -1,4 +1,5 @@
 #include "resource.h"
+#include "winuser.h"
 
 IDI_ICON ICON "tictactoe.ico"
 
@@ -23,3 +24,14 @@ MENU_ACCELERATOR ACCELERATORS
 BEGIN
 	"N", ID_FILE_NEW, CONTROL, VIRTKEY; CTRL + N
 END
+
+IDD_ABOUT DIALOG DISCARDABLE  10, 10, 250, 66
+	STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+	CAPTION "About the author of TicTacToe"
+	FONT 9, "Segoe UI"
+	BEGIN
+		DEFPUSHBUTTON   "Cl&ose", IDOK, 190, 18, 50, 14
+	    PUSHBUTTON      "Visit &website", ID_VISITWEBSITE, 190, 35, 50, 14
+		LTEXT           "András Bögöly\r\n", IDC_STATIC, 16, 18, 144, 33
+		LTEXT           "https://www.bogolyandras.com/", IDC_STATIC2, 16, 35, 144, 53
+	END

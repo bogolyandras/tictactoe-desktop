@@ -8,6 +8,9 @@
 //Com API
 #include <shobjidl.h>
 
+//Shell API
+#include <shellapi.h>
+
 class MainWindow : public BaseWindow<MainWindow>
 {
 private:
@@ -36,6 +39,33 @@ void MainWindow::trackMouse()
     trackingMouse = true;
 }
 
+BOOL CALLBACK AboutProcHandler(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    switch (uMsg)
+    {
+    case WM_COMMAND:
+        switch (LOWORD(wParam))
+        {
+        case IDOK:
+            {
+                EndDialog(hwndDlg, wParam);
+                return TRUE;
+            }
+        case ID_VISITWEBSITE:
+            {
+                ShellExecute(NULL, L"open", L"https://www.bogolyandras.com", NULL, NULL, SW_SHOWNORMAL);
+                return TRUE;
+            }
+        }
+        return TRUE;
+    case WM_CLOSE:
+        EndDialog(hwndDlg, wParam);
+        return TRUE;
+    default:
+        return FALSE;
+    }
+}
+
 LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg)
@@ -62,6 +92,9 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
                 return 0;
             case ID_FILE_NEW:
                 mainWindowLogic->OnNew();
+                return 0;
+            case ID_HELP_ABOUT:
+                DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_ABOUT), m_hwnd, (DLGPROC)AboutProcHandler);
                 return 0;
             case ID_OPTIONS_IAMSTARTING:
             {

@@ -29,7 +29,7 @@ public:
         }
     }
 
-    BaseWindow() : m_hwnd(NULL) { }
+    BaseWindow() : m_hwnd(NULL), m_menu(NULL) { }
 
     BOOL Create(
         PCWSTR lpWindowName,
