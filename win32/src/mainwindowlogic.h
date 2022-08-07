@@ -8,7 +8,7 @@
 //TicTacToe core library
 #include <layout.h>
 #include <table.h>
-#include <ai/randomai.h>
+#include <ai/heuristicai.h>
 
 class MainWindowLogic
 {
@@ -31,7 +31,7 @@ private:
 
     Layout layout;
     Table table;
-    RandomAi ai;
+    HeuristicAi ai;
     bool IAmStartingTheGame;
 
     void handlePosition(Position p);

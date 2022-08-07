@@ -5,6 +5,8 @@ public:
 	Position calculateAnswer(TableView* tableView) {
 		const int fieldsX = tableView->fieldsX();
 		const int fieldsY = tableView->fieldsY();
+
+		//Just find the first empty field
 		for (int i = 0; i < fieldsX; i++) {
 			for (int j = 0; j < fieldsY; j++) {
 				if (tableView->get(Position(i, j)) == FieldView::Empty) {

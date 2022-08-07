@@ -63,16 +63,16 @@ void Table::checkWinSituation(FieldState playerToBeChecked)
 	const int inLineToCheck = 5;
 	bool foundWinningCombination = false;
 	
-	for (int i = 0; i < fieldsX - inLineToCheck - 1; i++) {
+	for (int x = 0; x < fieldsX; x++) {
 		//For each column
-		for (int j = 0; j < fieldsY - inLineToCheck - 1; j++) {
+		for (int y = 0; y < fieldsY; y++) {
 			//For each field in the columns
 			bool canWin;
 
 			//Check Horizontally
 			canWin = true;
 			for (int k = 0; k < inLineToCheck; k++) {
-				if (fields[positionToIndex(Position(i, j + k))].fieldState != playerToBeChecked) {
+				if (fields[positionToIndex(Position(x, y + k))].fieldState != playerToBeChecked) {
 					canWin = false;
 					break;
 				}
@@ -80,14 +80,14 @@ void Table::checkWinSituation(FieldState playerToBeChecked)
 			if (canWin) {
 				foundWinningCombination = true;
 				for (int k = 0; k < inLineToCheck; k++) {
-					fields[positionToIndex(Position(i, j + k))].highlight = true;
+					fields[positionToIndex(Position(x, y + k))].highlight = true;
 				}
 			}
 
 			//Check Veritically
 			canWin = true;
 			for (int k = 0; k < inLineToCheck; k++) {
-				if (fields[positionToIndex(Position(i + k, j))].fieldState != playerToBeChecked) {
+				if (fields[positionToIndex(Position(x + k, y))].fieldState != playerToBeChecked) {
 					canWin = false;
 					break;
 				}
@@ -95,14 +95,14 @@ void Table::checkWinSituation(FieldState playerToBeChecked)
 			if (canWin) {
 				foundWinningCombination = true;
 				for (int k = 0; k < inLineToCheck; k++) {
-					fields[positionToIndex(Position(i + k, j))].highlight = true;
+					fields[positionToIndex(Position(x + k, y))].highlight = true;
 				}
 			}
 
 			//Check diagonally downwards-right
 			canWin = true;
 			for (int k = 0; k < inLineToCheck; k++) {
-				if (fields[positionToIndex(Position(i + k, j + k))].fieldState != playerToBeChecked) {
+				if (fields[positionToIndex(Position(x + k, y + k))].fieldState != playerToBeChecked) {
 					canWin = false;
 					break;
 				}
@@ -110,14 +110,14 @@ void Table::checkWinSituation(FieldState playerToBeChecked)
 			if (canWin) {
 				foundWinningCombination = true;
 				for (int k = 0; k < inLineToCheck; k++) {
-					fields[positionToIndex(Position(i + k, j + k))].highlight = true;
+					fields[positionToIndex(Position(x + k, y + k))].highlight = true;
 				}
 			}
 
 			//Check diagonally downwards-left
 			canWin = true;
 			for (int k = 0; k < inLineToCheck; k++) {
-				if (fields[positionToIndex(Position(i + k, j - k))].fieldState != playerToBeChecked) {
+				if (fields[positionToIndex(Position(x + inLineToCheck - k, y + k))].fieldState != playerToBeChecked) {
 					canWin = false;
 					break;
 				}
@@ -125,7 +125,7 @@ void Table::checkWinSituation(FieldState playerToBeChecked)
 			if (canWin) {
 				foundWinningCombination = true;
 				for (int k = 0; k < inLineToCheck; k++) {
-					fields[positionToIndex(Position(i + k, j - k))].highlight = true;
+					fields[positionToIndex(Position(x + inLineToCheck - k, y + k))].highlight = true;
 				}
 			}
 		}
