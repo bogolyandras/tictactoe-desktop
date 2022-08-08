@@ -31,7 +31,11 @@ public:
 
 protected:
 	inline size_t positionToIndex(Position position) {
-		return (size_t)position.Y * this->fieldsX + position.X;
+		size_t index = (size_t)position.Y* this->fieldsX + position.X;
+		if (index >= numberOfFields) {
+			throw std::invalid_argument("index out of bounds!");
+		}
+		return index;
 	}
 
 };

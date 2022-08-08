@@ -7,6 +7,106 @@ Table::Table(const int fieldsX, const int fieldsY) :
 		fields[i] = FieldStateWithProperties();
 	}
 	tableState = TableState::AnybodyToPlace;
+	calculatePositionCombinations();
+}
+
+void Table::calculatePositionCombinations() {
+
+	constexpr int inLineToCheck = getNumberOfPositionsToCheck();
+
+	const size_t horizontal_possibilities = ((size_t)fieldsX - inLineToCheck + 1) * fieldsY;
+	const size_t vertical_possibilities = fieldsX * ((size_t)fieldsY - inLineToCheck + 1);
+	const size_t downwards_right = ((size_t)fieldsX - inLineToCheck + 1) * ((size_t)fieldsY - inLineToCheck + 1);
+	const size_t downwards_left = ((size_t)fieldsX - inLineToCheck + 1) * ((size_t)fieldsY - inLineToCheck + 1);
+
+	const size_t all_possibilities = horizontal_possibilities + vertical_possibilities + downwards_right + downwards_left;
+
+	all_positions_and_indexes_size = all_possibilities;
+	all_positions = std::shared_ptr<PositionContainer>(new PositionContainer[all_positions_and_indexes_size]);
+	all_indexes = std::shared_ptr<IndexContainer>(new IndexContainer[all_positions_and_indexes_size]);
+
+	size_t z = 0;
+	for (int x = 0; x < fieldsX; x++) {
+		//For each column
+		for (int y = 0; y < fieldsY; y++) {
+			//For each field in the columns
+
+			//Check Horizontally
+			if (y < fieldsY - inLineToCheck + 1) {
+
+				PositionContainer pc;
+				IndexContainer ic;
+
+				for (int k = 0; k < inLineToCheck; k++) {
+					pc.positions[k] = Position(x, y + k);
+					ic.indexes[k] = positionToIndex(pc.positions[k]);
+				}
+
+				all_positions.get()[z] = pc;
+				all_indexes.get()[z] = ic;
+
+				z++;
+			}
+
+			//Check Veritically
+			if (x < fieldsX - inLineToCheck + 1) {
+
+				PositionContainer pc;
+				IndexContainer ic;
+
+				for (int k = 0; k < inLineToCheck; k++) {
+					pc.positions[k] = Position(x + k, y);
+					ic.indexes[k] = positionToIndex(pc.positions[k]);
+				}
+
+				all_positions.get()[z] = pc;
+				all_indexes.get()[z] = ic;
+
+				z++;
+
+			}
+
+			//Check diagonally downwards-right
+			if (y < fieldsY - inLineToCheck + 1 && x < fieldsX - inLineToCheck + 1) {
+
+				PositionContainer pc;
+				IndexContainer ic;
+
+				for (int k = 0; k < inLineToCheck; k++) {
+					pc.positions[k] = Position(x + k, y + k);
+					ic.indexes[k] = positionToIndex(pc.positions[k]);
+				}
+
+				all_positions.get()[z] = pc;
+				all_indexes.get()[z] = ic;
+
+				z++;
+			}
+
+			//Check diagonally downwards-left
+			if (y < fieldsY - inLineToCheck + 1 && x < fieldsX - inLineToCheck + 1) {
+
+				PositionContainer pc;
+				IndexContainer ic;
+
+				for (int k = 0; k < inLineToCheck; k++) {
+					pc.positions[k] = Position(x + inLineToCheck - k, y + k);
+					ic.indexes[k] = positionToIndex(pc.positions[k]);
+				}
+
+				all_positions.get()[z] = pc;
+				all_indexes.get()[z] = ic;
+
+				z++;
+			}
+			
+		}
+	}
+
+	if (z != all_possibilities) {
+		throw std::invalid_argument("not expected number of positions!");
+	}
+
 }
 
 FieldState Table::get(Position position)
@@ -60,73 +160,23 @@ void Table::reset()
 
 void Table::checkWinSituation(FieldState playerToBeChecked)
 {
-	const int inLineToCheck = 5;
+	constexpr int inLineToCheck = getNumberOfPositionsToCheck();
 	bool foundWinningCombination = false;
-	
-	for (int x = 0; x < fieldsX; x++) {
-		//For each column
-		for (int y = 0; y < fieldsY; y++) {
-			//For each field in the columns
-			bool canWin;
 
-			//Check Horizontally
-			canWin = true;
-			for (int k = 0; k < inLineToCheck; k++) {
-				if (fields[positionToIndex(Position(x, y + k))].fieldState != playerToBeChecked) {
-					canWin = false;
-					break;
-				}
+	bool canWin;
+	for (int i = 0; i < all_positions_and_indexes_size; i++) {
+		canWin = true;
+		for (int j = 0; j < inLineToCheck; j++) {
+			if (fields[all_indexes.get()[i].indexes[j]].fieldState != playerToBeChecked) {
+				canWin = false;
+				break;
 			}
-			if (canWin) {
-				foundWinningCombination = true;
-				for (int k = 0; k < inLineToCheck; k++) {
-					fields[positionToIndex(Position(x, y + k))].highlight = true;
-				}
-			}
-
-			//Check Veritically
-			canWin = true;
-			for (int k = 0; k < inLineToCheck; k++) {
-				if (fields[positionToIndex(Position(x + k, y))].fieldState != playerToBeChecked) {
-					canWin = false;
-					break;
-				}
-			}
-			if (canWin) {
-				foundWinningCombination = true;
-				for (int k = 0; k < inLineToCheck; k++) {
-					fields[positionToIndex(Position(x + k, y))].highlight = true;
-				}
-			}
-
-			//Check diagonally downwards-right
-			canWin = true;
-			for (int k = 0; k < inLineToCheck; k++) {
-				if (fields[positionToIndex(Position(x + k, y + k))].fieldState != playerToBeChecked) {
-					canWin = false;
-					break;
-				}
-			}
-			if (canWin) {
-				foundWinningCombination = true;
-				for (int k = 0; k < inLineToCheck; k++) {
-					fields[positionToIndex(Position(x + k, y + k))].highlight = true;
-				}
-			}
-
-			//Check diagonally downwards-left
-			canWin = true;
-			for (int k = 0; k < inLineToCheck; k++) {
-				if (fields[positionToIndex(Position(x + inLineToCheck - k, y + k))].fieldState != playerToBeChecked) {
-					canWin = false;
-					break;
-				}
-			}
-			if (canWin) {
-				foundWinningCombination = true;
-				for (int k = 0; k < inLineToCheck; k++) {
-					fields[positionToIndex(Position(x + inLineToCheck - k, y + k))].highlight = true;
-				}
+			
+		}
+		if (canWin) {
+			foundWinningCombination = true;
+			for (int j = 0; j < inLineToCheck; j++) {
+				fields[all_indexes.get()[i].indexes[j]].highlight = true;
 			}
 		}
 	}

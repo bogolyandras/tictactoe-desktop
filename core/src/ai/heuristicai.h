@@ -56,16 +56,16 @@ public:
 
 inline ThreatCombo calculateThreats(size_t fieldsX, size_t fieldsY, std::shared_ptr<FieldView[]> table) {
 
-	for (int i = 0; i < fieldsX; i++) {
-		for (int j = 0; j < fieldsY; j++) {
+	for (int x = 0; x < fieldsX; x++) {
+		for (int y = 0; y < fieldsY; y++) {
 			//to the right
 			for (int k = 0; k < 5; k++) {
-				table[positionToIndex(fieldsX, fieldsY, Position(i + k, j))];
+				FieldView f = table[positionToIndex(fieldsX, fieldsY, Position(x + k, y))];
 			}
 
 			//to the left
 			for (int k = 0; k < 5; k++) {
-				table[positionToIndex(fieldsX, fieldsY, Position(i + k, j))];
+				table[positionToIndex(fieldsX, fieldsY, Position(x + k, y))];
 			}
 		}
 	}
