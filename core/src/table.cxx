@@ -158,6 +158,11 @@ void Table::reset()
 	tableState = TableState::AnybodyToPlace;
 }
 
+PositionIndexCombinedContainer Table::getComboContainer()
+{
+	return PositionIndexCombinedContainer(positionAndIndexCombinationsSize, positionCombinations);
+}
+
 void Table::checkWinSituation(FieldState playerToBeChecked)
 {
 	constexpr int inLineToCheck = getNumberOfPositionsToCheck();

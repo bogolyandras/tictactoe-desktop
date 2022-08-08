@@ -11,6 +11,30 @@ public:
 	Position(int X, int Y) : X{ X }, Y{ Y } {}
 };
 
+constexpr int getNumberOfPositionsToCheck() {
+	return 5;
+};
+
+struct PositionCombinationContainer {
+	Position positions[getNumberOfPositionsToCheck()];
+};
+
+struct IndexCombinationContainer {
+	size_t indexes[getNumberOfPositionsToCheck()];
+};
+
+struct PositionIndexCombinedContainer {
+
+	size_t const positionAndIndexCombinationsSize;
+	std::shared_ptr<const PositionCombinationContainer[]> positionCombinations;
+
+	PositionIndexCombinedContainer(size_t const positionAndIndexCombinationsSize,
+	std::shared_ptr<const PositionCombinationContainer[]> positionCombinations) :
+		positionAndIndexCombinationsSize { positionAndIndexCombinationsSize },
+		positionCombinations { positionCombinations }
+	{}
+};
+
 template <class T>
 class TableLayoutBase {
 

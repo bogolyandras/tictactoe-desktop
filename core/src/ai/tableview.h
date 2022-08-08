@@ -8,4 +8,5 @@ public:
 	virtual int fieldsX() = 0;
 	virtual int fieldsY() = 0;
 	virtual FieldView get(Position position) = 0;
+	virtual PositionIndexCombinedContainer getPositionIndexCombinedContainer() = 0;
 };

@@ -15,18 +15,6 @@ struct FieldStateWithProperties {
 
 };
 
-constexpr int getNumberOfPositionsToCheck() {
-	return 5;
-};
-
-struct PositionCombinationContainer {
-	Position positions[getNumberOfPositionsToCheck()];
-};
-
-struct IndexCombinationContainer {
-	size_t indexes[getNumberOfPositionsToCheck()];
-};
-
 class Table: public TableLayoutBase<FieldStateWithProperties> {
 
 private:
@@ -49,5 +37,6 @@ public:
 	TableState getTableState();
 	bool mark(Position position, FieldState fieldState);
 	void reset();
+	PositionIndexCombinedContainer getComboContainer();
 
 };

@@ -31,4 +31,8 @@ public:
 		}
 	}
 
+	PositionIndexCombinedContainer getPositionIndexCombinedContainer() {
+		return table->getComboContainer();
+	}
+
 };
