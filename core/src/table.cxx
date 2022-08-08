@@ -21,9 +21,9 @@ void Table::calculatePositionCombinations() {
 
 	const size_t all_possibilities = horizontal_possibilities + vertical_possibilities + downwards_right + downwards_left;
 
-	all_positions_and_indexes_size = all_possibilities;
-	all_positions = std::shared_ptr<PositionContainer>(new PositionContainer[all_positions_and_indexes_size]);
-	all_indexes = std::shared_ptr<IndexContainer>(new IndexContainer[all_positions_and_indexes_size]);
+	positionAndIndexCombinationsSize = all_possibilities;
+	positionCombinations = std::shared_ptr<PositionCombinationContainer[]>(new PositionCombinationContainer[positionAndIndexCombinationsSize]);
+	indexCombinations = std::shared_ptr<IndexCombinationContainer[]>(new IndexCombinationContainer[positionAndIndexCombinationsSize]);
 
 	size_t z = 0;
 	for (int x = 0; x < fieldsX; x++) {
@@ -34,16 +34,16 @@ void Table::calculatePositionCombinations() {
 			//Check Horizontally
 			if (y < fieldsY - inLineToCheck + 1) {
 
-				PositionContainer pc;
-				IndexContainer ic;
+				PositionCombinationContainer pc;
+				IndexCombinationContainer ic;
 
 				for (int k = 0; k < inLineToCheck; k++) {
 					pc.positions[k] = Position(x, y + k);
 					ic.indexes[k] = positionToIndex(pc.positions[k]);
 				}
 
-				all_positions.get()[z] = pc;
-				all_indexes.get()[z] = ic;
+				positionCombinations.get()[z] = pc;
+				indexCombinations.get()[z] = ic;
 
 				z++;
 			}
@@ -51,16 +51,16 @@ void Table::calculatePositionCombinations() {
 			//Check Veritically
 			if (x < fieldsX - inLineToCheck + 1) {
 
-				PositionContainer pc;
-				IndexContainer ic;
+				PositionCombinationContainer pc;
+				IndexCombinationContainer ic;
 
 				for (int k = 0; k < inLineToCheck; k++) {
 					pc.positions[k] = Position(x + k, y);
 					ic.indexes[k] = positionToIndex(pc.positions[k]);
 				}
 
-				all_positions.get()[z] = pc;
-				all_indexes.get()[z] = ic;
+				positionCombinations.get()[z] = pc;
+				indexCombinations.get()[z] = ic;
 
 				z++;
 
@@ -69,16 +69,16 @@ void Table::calculatePositionCombinations() {
 			//Check diagonally downwards-right
 			if (y < fieldsY - inLineToCheck + 1 && x < fieldsX - inLineToCheck + 1) {
 
-				PositionContainer pc;
-				IndexContainer ic;
+				PositionCombinationContainer pc;
+				IndexCombinationContainer ic;
 
 				for (int k = 0; k < inLineToCheck; k++) {
 					pc.positions[k] = Position(x + k, y + k);
 					ic.indexes[k] = positionToIndex(pc.positions[k]);
 				}
 
-				all_positions.get()[z] = pc;
-				all_indexes.get()[z] = ic;
+				positionCombinations.get()[z] = pc;
+				indexCombinations.get()[z] = ic;
 
 				z++;
 			}
@@ -86,16 +86,16 @@ void Table::calculatePositionCombinations() {
 			//Check diagonally downwards-left
 			if (y < fieldsY - inLineToCheck + 1 && x < fieldsX - inLineToCheck + 1) {
 
-				PositionContainer pc;
-				IndexContainer ic;
+				PositionCombinationContainer pc;
+				IndexCombinationContainer ic;
 
 				for (int k = 0; k < inLineToCheck; k++) {
 					pc.positions[k] = Position(x + inLineToCheck - k, y + k);
 					ic.indexes[k] = positionToIndex(pc.positions[k]);
 				}
 
-				all_positions.get()[z] = pc;
-				all_indexes.get()[z] = ic;
+				positionCombinations.get()[z] = pc;
+				indexCombinations.get()[z] = ic;
 
 				z++;
 			}
@@ -164,10 +164,10 @@ void Table::checkWinSituation(FieldState playerToBeChecked)
 	bool foundWinningCombination = false;
 
 	bool canWin;
-	for (int i = 0; i < all_positions_and_indexes_size; i++) {
+	for (int i = 0; i < positionAndIndexCombinationsSize; i++) {
 		canWin = true;
 		for (int j = 0; j < inLineToCheck; j++) {
-			if (fields[all_indexes.get()[i].indexes[j]].fieldState != playerToBeChecked) {
+			if (fields[indexCombinations.get()[i].indexes[j]].fieldState != playerToBeChecked) {
 				canWin = false;
 				break;
 			}
@@ -176,7 +176,7 @@ void Table::checkWinSituation(FieldState playerToBeChecked)
 		if (canWin) {
 			foundWinningCombination = true;
 			for (int j = 0; j < inLineToCheck; j++) {
-				fields[all_indexes.get()[i].indexes[j]].highlight = true;
+				fields[indexCombinations.get()[i].indexes[j]].highlight = true;
 			}
 		}
 	}

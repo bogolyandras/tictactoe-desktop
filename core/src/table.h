@@ -19,11 +19,11 @@ constexpr int getNumberOfPositionsToCheck() {
 	return 5;
 };
 
-struct PositionContainer {
+struct PositionCombinationContainer {
 	Position positions[getNumberOfPositionsToCheck()];
 };
 
-struct IndexContainer {
+struct IndexCombinationContainer {
 	size_t indexes[getNumberOfPositionsToCheck()];
 };
 
@@ -34,9 +34,9 @@ private:
 	Position lastMarkPosition;
 	TableState tableState;
 
-	size_t all_positions_and_indexes_size;
-	std::shared_ptr<PositionContainer> all_positions;
-	std::shared_ptr<IndexContainer> all_indexes;
+	size_t positionAndIndexCombinationsSize;
+	std::shared_ptr<PositionCombinationContainer[]> positionCombinations;
+	std::shared_ptr<IndexCombinationContainer[]> indexCombinations;
 
 	void checkWinSituation(FieldState playerToBeChecked);
 	void calculatePositionCombinations();
