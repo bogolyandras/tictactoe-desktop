@@ -1,3 +1,5 @@
+#pragma once
+
 #include "table.h"
 
 Table::Table(const int fieldsX, const int fieldsY) :

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "tableview.h"
 #include "../table.h"
 

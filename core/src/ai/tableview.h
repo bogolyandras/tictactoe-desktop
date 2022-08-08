@@ -1,4 +1,5 @@
 #pragma once
+
 #include "..\basetable.h"
 
 enum class FieldView { Empty, Mine, Opponent };
