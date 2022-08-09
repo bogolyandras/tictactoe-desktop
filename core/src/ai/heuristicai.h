@@ -16,6 +16,12 @@ struct Threat {
 		}
 	}
 
+	Threat(const Threat& t) {
+		for (int i = 0; i < getNumberOfPositionsToCheck() + 1; i++) {
+			values[i] = t.values[i];
+		}
+	}
+
 	Threat& operator=(const Threat& a)
 	{
 		for (int i = 0; i < getNumberOfPositionsToCheck() + 1; i++) {
@@ -62,6 +68,17 @@ struct ThreatCombo {
 	Threat threatPosedToOpponent;
 	Threat threatPosedFromOpponent;
 
+	ThreatCombo() {
+		threatPosedToOpponent = Threat();
+		threatPosedFromOpponent = Threat();
+	}
+
+	ThreatCombo(const ThreatCombo& a)
+	{
+		threatPosedToOpponent = a.threatPosedToOpponent;
+		threatPosedFromOpponent = a.threatPosedFromOpponent;
+	}
+
 	ThreatCombo& operator=(const ThreatCombo& a)
 	{
 		threatPosedToOpponent = a.threatPosedToOpponent;
@@ -81,23 +98,16 @@ struct ThreatCombo {
 
 	bool operator<(const ThreatCombo a) const {
 		for (int i = getNumberOfPositionsToCheck() + 1; i > 0; i--) {
-			if (threatPosedToOpponent.values[i - 1] < a.threatPosedToOpponent.values[i - 1]) {
+			if (threatPosedFromOpponent.values[i - 1] > a.threatPosedFromOpponent.values[i - 1]) {
 				return true;
 			}
-			else if (threatPosedFromOpponent.values[i - 1] > a.threatPosedToOpponent.values[i - 1]) {
+			else if (threatPosedFromOpponent.values[i - 1] < a.threatPosedFromOpponent.values[i - 1]) {
+				return false;
+			} else if (threatPosedToOpponent.values[i - 1] < a.threatPosedToOpponent.values[i - 1]) {
 				return true;
 			}
-		}
-		return false;
-	}
-
-	bool operator>(const ThreatCombo a) const {
-		for (int i = getNumberOfPositionsToCheck() + 1; i > 0; i--) {
-			if (threatPosedToOpponent.values[i - 1] > a.threatPosedToOpponent.values[i - 1]) {
-				return true;
-			}
-			else if (threatPosedFromOpponent.values[i - 1] < a.threatPosedToOpponent.values[i - 1]) {
-				return true;
+			else if (threatPosedToOpponent.values[i - 1] > a.threatPosedToOpponent.values[i - 1]) {
+				return false;
 			}
 		}
 		return false;
@@ -136,12 +146,21 @@ struct ThreatComboWithPosition {
 	ThreatComboWithPosition(ThreatCombo threatCombo, Position position)
 		: threatCombo{ threatCombo }, position{ position } {}
 
+	ThreatComboWithPosition(const ThreatComboWithPosition& a)
+	{
+		threatCombo = a.threatCombo;
+		position = a.position;
+	}
+
 	bool operator<(const ThreatComboWithPosition a) const {
 		return threatCombo < a.threatCombo;
 	}
 
-	bool operator>(const ThreatComboWithPosition a) const {
-		return threatCombo > a.threatCombo;
+	ThreatComboWithPosition& operator=(const ThreatComboWithPosition& a)
+	{
+		threatCombo = a.threatCombo;
+		position = a.position;
+		return *this;
 	}
 
 };

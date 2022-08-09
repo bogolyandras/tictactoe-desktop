@@ -9,6 +9,17 @@ public:
 	int Y = 0;
 	Position() : X{ 0 }, Y{ 0 } {}
 	Position(int X, int Y) : X{ X }, Y{ Y } {}
+	Position(const Position& p) {
+		X = p.X;
+		Y = p.Y;
+	}
+
+	Position& operator=(const Position& a)
+	{
+		X = a.X;
+		Y = a.Y;
+		return *this;
+	}
 };
 
 constexpr int getNumberOfPositionsToCheck() {

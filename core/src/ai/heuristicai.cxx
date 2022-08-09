@@ -26,28 +26,30 @@ Position HeuristicAi::calculateAnswer(TableView* tableView) {
 	}
 
 	const size_t possibleMovesSize = possibleMoves.size();
-	std::list<ThreatComboWithPosition> threatList(possibleMovesSize);
+	std::list<ThreatComboWithPosition> threatList;
 
 	const ThreatCombo originalThreatCombo = calculateThreats(c, fieldsX, fieldsY, originalTable);
-
-	std::list<std::tuple<size_t, Position>>::iterator it;
-	int i;
-	for (i = 0, it = possibleMoves.begin(); it != possibleMoves.end(); it++, i++)
 	{
-		const size_t index = std::get<0>(*it);
-		const Position position = std::get<1>(*it);
+		std::list<std::tuple<size_t, Position>>::iterator it;
+		int i;
 
-		demonstrativeTable[index] = FieldView::Mine;
-		const ThreatCombo diffThreadCombo = calculateThreats(c, fieldsX, fieldsY, demonstrativeTable);
-		demonstrativeTable[index] = FieldView::Empty;
+		for (i = 0, it = possibleMoves.begin(); it != possibleMoves.end(); it++, i++)
+		{
+			const size_t index = std::get<0>(*it);
+			const Position position = std::get<1>(*it);
 
-		threatList.push_back(ThreatComboWithPosition((diffThreadCombo - originalThreatCombo), position));
+			demonstrativeTable[index] = FieldView::Mine;
+			const ThreatCombo diffThreadCombo = calculateThreats(c, fieldsX, fieldsY, demonstrativeTable);
+			demonstrativeTable[index] = FieldView::Empty;
+
+			threatList.push_back(ThreatComboWithPosition((diffThreadCombo - originalThreatCombo), position));
+		}
+
 	}
 
 	threatList.sort();
 
-	return std::get<1>(possibleMoves.front());
-
+	return threatList.back().position;
 }
 
 inline ThreatCombo HeuristicAi::calculateThreats(
@@ -67,12 +69,10 @@ inline ThreatCombo HeuristicAi::calculateThreats(
 			const size_t index = positionToIndex(fieldsX, fieldsY, c.positionCombinations[i].positions[j]);
 			if (table[index] == FieldView::Mine) {
 				canOpponentPoseThreat = false;
+				threatToOpponent++;
 			}
 			else if (table[index] == FieldView::Opponent) {
 				canPoseThreatToOpponent = false;
-			}
-			else {
-				threatToOpponent++;
 				threatFromOpponent++;
 			}
 		}
@@ -80,8 +80,14 @@ inline ThreatCombo HeuristicAi::calculateThreats(
 		if (canPoseThreatToOpponent) {
 			tc.threatPosedToOpponent.values[0]++;
 		}
+		else {
+			threatToOpponent = 0;
+		}
 		if (canOpponentPoseThreat) {
 			tc.threatPosedFromOpponent.values[0]++;
+		}
+		else {
+			threatFromOpponent = 0;
 		}
 		for (int j = 0; j < getNumberOfPositionsToCheck(); j++) {
 			if (canPoseThreatToOpponent && j < threatToOpponent) {
