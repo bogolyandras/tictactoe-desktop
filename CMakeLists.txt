@@ -15,6 +15,5 @@ if (WIN32)
     add_subdirectory(win32)
 endif (WIN32)
 if (UNIX)
-    add_subdirectory(gtk3)
+    add_subdirectory(gtk4)
 endif (UNIX)
-
