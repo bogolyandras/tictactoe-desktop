@@ -1,5 +1,3 @@
-#pragma once
-
 #include "layout.h"
 #include <algorithm>
 
