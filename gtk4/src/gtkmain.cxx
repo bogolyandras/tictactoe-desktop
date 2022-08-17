@@ -1,41 +1,26 @@
-#include <gtk/gtk.h>
 
-static void
-print_hello (GtkWidget *widget,
-             gpointer   data)
+//TicTacToe core library
+#include <layout.h>
+#include <table.h>
+#include <ai/heuristicai.h>
+
+#include <gtkmm.h>
+
+class MyWindow : public Gtk::Window
 {
-  g_print ("Hello World\n");
+public:
+  MyWindow();
+};
+
+MyWindow::MyWindow()
+{
+  set_title("TicTacToe");
+  set_default_size(200, 200);
 }
 
-static void
-activate (GtkApplication *app,
-          gpointer        user_data)
+int main(int argc, char* argv[])
 {
-  GtkWidget *window;
-  GtkWidget *button;
+  auto app = Gtk::Application::create("com.bogolyandras.tictactoe");
 
-  window = gtk_application_window_new (app);
-  gtk_window_set_title (GTK_WINDOW (window), "Window");
-  gtk_window_set_default_size (GTK_WINDOW (window), 200, 200);
-
-  button = gtk_button_new_with_label ("Hello World");
-  g_signal_connect (button, "clicked", G_CALLBACK (print_hello), NULL);
-  gtk_window_set_child (GTK_WINDOW (window), button);
-
-  gtk_window_present (GTK_WINDOW (window));
-}
-
-int
-main (int    argc,
-      char **argv)
-{
-  GtkApplication *app;
-  int status;
-
-  app = gtk_application_new ("org.gtk.example", G_APPLICATION_FLAGS_NONE);
-  g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
-  status = g_application_run (G_APPLICATION (app), argc, argv);
-  g_object_unref (app);
-
-  return status;
+  return app->make_window_and_run<MyWindow>(argc, argv);
 }

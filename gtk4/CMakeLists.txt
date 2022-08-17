@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Use the package PkgConfig to detect GTK+ headers/library files
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(GTK4 REQUIRED gtk4)
+pkg_check_modules(GTK4 REQUIRED gtk4 gtkmm-4.0)
 
 # Add source to this project's executable.
 link_directories(${GTK4_LIBRARY_DIRS})

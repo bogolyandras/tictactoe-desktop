@@ -10,3 +10,6 @@
 /*/Makefile
 CMakeCache.txt
 /*/cmake_install.cmake
+
+gtk4/TicTacToeGtk4
+*.a
