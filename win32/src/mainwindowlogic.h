@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MAINWINDOWLOGIC_H
+#define MAINWINDOWLOGIC_H
 
 #include "win32util.h"
 
@@ -58,3 +59,5 @@ public:
     void OnMouseClick(int positionX, int positionY);
 
 };
+
+#endif // MAINWINDOWLOGIC_H

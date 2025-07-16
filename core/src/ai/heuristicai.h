@@ -1,4 +1,5 @@
-#pragma once
+#ifndef HEURISTICAI_H
+#define HEURISTICAI_H
 
 #include "ai.h"
 
@@ -173,5 +174,7 @@ class HeuristicAi : public Ai {
 public:
 	Position calculateAnswer(TableView* tableView);
 private:
-	ThreatCombo calculateThreats(const PositionIndexCombinedContainer c, const size_t fieldsX, const size_t fieldsY, std::shared_ptr<const FieldView[]> table);
+	ThreatCombo calculateThreats(PositionIndexCombinedContainer c, size_t fieldsX, size_t fieldsY, std::shared_ptr<const FieldView[]> table);
 };
+
+#endif // HEURISTICAI_H

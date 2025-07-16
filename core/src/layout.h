@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LAYOUT_H
+#define LAYOUT_H
 
 #include "basetable.h"
 
@@ -53,3 +54,5 @@ public:
 	void OnMouseMove(int positionX, int positionY);
 
 };
+
+#endif // LAYOUT_H

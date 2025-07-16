@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TABLEVIEWIMPL_H
+#define TABLEVIEWIMPL_H
 
 #include "tableview.h"
 #include "../table.h"
@@ -38,3 +39,5 @@ public:
 	}
 
 };
+
+#endif // TABLEVIEWIMPL_H

@@ -76,7 +76,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
                 mainWindowLogic.reset(new MainWindowLogic(m_hwnd));
             }
             catch (const std::exception& e) {
-                UNREFERENCED_PARAMETER(e);
+                // UNREFERENCED_PARAMETER(e);
                 return -1;
             }
         }
@@ -94,7 +94,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
                 mainWindowLogic->OnNew();
                 return 0;
             case ID_HELP_ABOUT:
-                DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_ABOUT), m_hwnd, (DLGPROC)AboutProcHandler);
+                DialogBox(GetModuleHandle(nullptr), MAKEINTRESOURCE(IDD_ABOUT), m_hwnd, (DLGPROC)AboutProcHandler);
                 return 0;
             case ID_OPTIONS_IAMSTARTING:
             {
@@ -155,7 +155,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             return DefWindowProc(m_hwnd, uMsg, wParam, lParam);
         }
 
-        InvalidateRect(m_hwnd, NULL, TRUE);
+        InvalidateRect(m_hwnd, nullptr, TRUE);
         return 0;
 
     case WM_LBUTTONUP:
@@ -164,7 +164,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             const int yPos = GET_Y_LPARAM(lParam);
             mainWindowLogic->OnMouseClick(xPos, yPos);
         }
-        InvalidateRect(m_hwnd, NULL, TRUE);
+        InvalidateRect(m_hwnd, nullptr, TRUE);
         return 0;
     case WM_MOUSEMOVE:
         if (!trackingMouse) {
@@ -175,12 +175,12 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             const int yPos = GET_Y_LPARAM(lParam);
             mainWindowLogic->OnMouseMove(xPos, yPos);
         }
-        InvalidateRect(m_hwnd, NULL, TRUE);
+        InvalidateRect(m_hwnd, nullptr, TRUE);
         return 0;
     case WM_MOUSELEAVE:
         trackingMouse = false;
         mainWindowLogic->OnMouseMove(-1, -1);
-        InvalidateRect(m_hwnd, NULL, TRUE);
+        InvalidateRect(m_hwnd, nullptr, TRUE);
         return 0;
     default:
         return DefWindowProc(m_hwnd, uMsg, wParam, lParam);
@@ -188,7 +188,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
     return TRUE;
 }
 
-int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_  PWSTR pCmdLine, _In_  int nCmdShow)
+int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_  LPSTR pCmdLine, _In_  int nCmdShow)
 {
     MainWindow mainWindow;
 
@@ -209,7 +209,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     // Run the message loop.
 
     MSG msg = { };
-    while (GetMessage(&msg, NULL, 0, 0))
+    while (GetMessage(&msg, nullptr, 0, 0))
     {
         if (!TranslateAccelerator(
             mainWindow.Window(),

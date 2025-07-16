@@ -1,4 +1,5 @@
-#pragma once
+#ifndef WIN32_UTIL_H
+#define WIN32_UTIL_H
 
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
 name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
@@ -19,7 +20,7 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #include <d2d1.h>
 #pragma comment(lib, "d2d1")
 
-#include <iostream>
+#include <memory>
 
 namespace direct2d {
 
@@ -32,3 +33,5 @@ namespace direct2d {
 	std::unique_ptr<ID2D1SolidColorBrush> create_brush(ID2D1HwndRenderTarget* renderTarget, D2D1::ColorF color);
 
 };
+
+#endif //WIN32_UTIL_H

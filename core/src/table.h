@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TABLE_H
+#define TABLE_H
 
 #include "basetable.h"
 
@@ -40,3 +41,5 @@ public:
 	PositionIndexCombinedContainer getComboContainer();
 
 };
+
+#endif // TABLE_H

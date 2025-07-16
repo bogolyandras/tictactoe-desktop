@@ -1,4 +1,6 @@
-#pragma once
+#ifndef TABLEVIEW_H
+#define TABLEVIEW_H
+
 
 #include "../basetable.h"
 
@@ -11,3 +13,5 @@ public:
 	virtual FieldView get(Position position) = 0;
 	virtual PositionIndexCombinedContainer getPositionIndexCombinedContainer() = 0;
 };
+
+#endif // TABLEVIEW_H

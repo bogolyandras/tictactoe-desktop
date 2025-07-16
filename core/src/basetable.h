@@ -1,4 +1,5 @@
-#pragma once
+#ifndef BASETABLE_H
+#define BASETABLE_H
 
 #include <iostream>
 #include <memory>
@@ -74,3 +75,5 @@ protected:
 	}
 
 };
+
+#endif // BASETABLE_H
