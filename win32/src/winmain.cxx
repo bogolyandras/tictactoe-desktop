@@ -2,7 +2,7 @@
 
 //Internal files
 #include "mainwindowlogic.h"
-#include "basewin.h"
+
 #include "../resource/resource.h"
 
 //Com API
@@ -11,7 +11,7 @@
 //Shell API
 #include <shellapi.h>
 
-class MainWindow : public BaseWindow<MainWindow>
+class MainWindow
 {
 private:
     std::unique_ptr<MainWindowLogic> mainWindowLogic;
@@ -19,10 +19,67 @@ private:
     void trackMouse();
 
 public:
-    MainWindow() {}
+    MainWindow() : m_hwnd(nullptr), m_menu(nullptr) { }
 
-    PCWSTR  ClassName() const { return L"TicTacToe Window Class"; }
+    static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+    {
+        MainWindow* pThis = NULL;
+
+        if (uMsg == WM_NCCREATE)
+        {
+            auto* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
+            pThis = reinterpret_cast<MainWindow*>(pCreate->lpCreateParams);
+            SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)pThis);
+            pThis->m_hwnd = hwnd;
+        }
+        else
+        {
+            pThis = reinterpret_cast<MainWindow*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+        }
+
+        if (pThis)
+        {
+            return pThis->HandleMessage(uMsg, wParam, lParam);
+        }
+        else
+        {
+            return DefWindowProc(hwnd, uMsg, wParam, lParam);
+        }
+    }
+
+    BOOL Create(HINSTANCE hInstance)
+    {
+        HMENU hMenu = LoadMenu(hInstance, MAKEINTRESOURCE(IDR_MENU));
+        HICON hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON));
+
+        WNDCLASS wc = {};
+
+        wc.lpfnWndProc = MainWindow::WindowProc;
+        wc.hInstance = GetModuleHandle(NULL);
+        wc.lpszClassName = ClassName();
+        wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+        wc.hIcon = hIcon;
+
+        RegisterClass(&wc);
+
+        m_hwnd = CreateWindowEx(
+            0, ClassName(), L"TicTacToe", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
+            CW_USEDEFAULT, CW_USEDEFAULT, nullptr, hMenu, GetModuleHandle(nullptr), this
+        );
+
+        m_menu = hMenu;
+
+        return (m_hwnd ? TRUE : FALSE);
+    }
+
+    HWND Window() const { return m_hwnd; }
+    HMENU Menu() const { return m_menu; }
+    static PCTSTR ClassName() { return L"TicTacToe Window Class"; }
     LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+private:
+    HWND m_hwnd;
+    HMENU m_menu;
 };
 
 void MainWindow::trackMouse()
@@ -192,12 +249,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 {
     MainWindow mainWindow;
 
-    if (!mainWindow.Create(
-        L"TicTacToe",
-        WS_OVERLAPPEDWINDOW,
-        LoadMenu(hInstance, MAKEINTRESOURCE(IDR_MENU)),
-        LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON))
-    ))
+    if (!mainWindow.Create(hInstance))
     {
         return -1;
     }
@@ -206,9 +258,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
     HACCEL hAccel = LoadAccelerators(hInstance, MAKEINTRESOURCE(MENU_ACCELERATOR));
 
-    // Run the message loop.
-
-    MSG msg = { };
+    MSG msg = {};
     while (GetMessage(&msg, nullptr, 0, 0))
     {
         if (!TranslateAccelerator(
