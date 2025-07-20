@@ -6,9 +6,11 @@ add_executable (TicTacToeWin32 WIN32 "src/winmain.cxx" "src/win32util.cxx" "src/
 target_link_libraries(TicTacToeWin32 PUBLIC ComCtl32.lib d2d1.lib)
 target_link_libraries(TicTacToeWin32 PUBLIC TicTacToeCore)
 
-# Define UNICODE for Windows builds
-if(WIN32)
-    add_compile_definitions(UNICODE _UNICODE)
+add_compile_definitions(UNICODE _UNICODE, WIN32_LEAN_AND_MEAN)
+
+if(MINGW)
+    target_compile_options(TicTacToeWin32 PRIVATE -municode)
+    target_link_options(TicTacToeWin32 PRIVATE -municode)
 endif()
 
 # Add windows SDKs
