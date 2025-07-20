@@ -3,6 +3,7 @@
 *.aps
 /.vscode/
 /build/
+.idea
 
 /CMakeFiles
 /*/CMakeFiles

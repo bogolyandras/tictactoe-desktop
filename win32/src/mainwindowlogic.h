@@ -10,6 +10,7 @@
 #include <layout.h>
 #include <table.h>
 #include <ai/heuristicai.h>
+#include <expected>
 
 class MainWindowLogic
 {

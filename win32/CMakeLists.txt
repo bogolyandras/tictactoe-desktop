@@ -6,11 +6,14 @@ add_executable (TicTacToeWin32 WIN32 "src/winmain.cxx" "src/win32util.cxx" "src/
 target_link_libraries(TicTacToeWin32 PUBLIC ComCtl32.lib d2d1.lib)
 target_link_libraries(TicTacToeWin32 PUBLIC TicTacToeCore)
 
+# Define UNICODE for Windows builds
+if(WIN32)
+    add_compile_definitions(UNICODE _UNICODE)
+endif()
+
 # Add windows SDKs
 target_include_directories(TicTacToeWin32 PUBLIC $ENV{UniversalCRTSdkDir}/Include/ucrt)
 target_include_directories(TicTacToeWin32 PUBLIC $ENV{UniversalCRTSdkDir}/Include/10.0.10056.0/ucrt)
 
 # Link core library
 target_include_directories(TicTacToeWin32 PUBLIC "${PROJECT_BINARY_DIR}" "${PROJECT_SOURCE_DIR}/core/src")
-
-# TODO: Add tests and install targets if needed.

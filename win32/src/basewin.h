@@ -9,7 +9,7 @@ public:
 
         if (uMsg == WM_NCCREATE)
         {
-            CREATESTRUCT* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
+            auto* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
             pThis = reinterpret_cast<DERIVED_TYPE*>(pCreate->lpCreateParams);
             SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)pThis);
             pThis->m_hwnd = hwnd;
