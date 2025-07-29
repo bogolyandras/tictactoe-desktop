@@ -2,6 +2,7 @@
 #define LAYOUT_H
 
 #include "basetable.h"
+#include <optional>
 
 struct FieldShapeAndPosition {
 
@@ -23,8 +24,6 @@ struct CommonFieldStructure {
 };
 
 class Layout: public TableLayoutBase<FieldShapeAndPosition> {
-
-private:
 	float sizeX;
 	float sizeY;
 
@@ -35,7 +34,7 @@ private:
 	void RecalculateLayout();
 
 	size_t cursorPositionAsIndex();
-	size_t mousePositionAsIndex();
+	auto mousePositionAsIndex() -> std::optional<size_t>;
 
 public:
 	CommonFieldStructure commonFieldStructure;
@@ -43,7 +42,7 @@ public:
 	Layout(const int fieldsX, const int fieldsY);
 
 	Position cursorPosition;
-	Position mousePosition();
+	auto mousePosition() -> std::optional<Position>;
 
 	void ChangeSize(float sizeX, float sizeY);
 

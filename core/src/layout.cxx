@@ -60,38 +60,40 @@ size_t Layout::cursorPositionAsIndex() {
 
 
 
-Position Layout::mousePosition()
+auto Layout::mousePosition() -> std::optional<Position>
 {
 	const bool mouseOutOfWindow = mousePositionX < 0 || mousePositionY < 0;
 	if (mouseOutOfWindow) {
-		return Position(-1, -1);
+		return std::nullopt;
 	}
 
-	const bool leftOutRange = (float)mousePositionX < commonFieldStructure.offsetX;
-	const bool rightOutRange = (float)mousePositionX > sizeX - commonFieldStructure.offsetX;
+	const bool leftOutRange = static_cast<float>(mousePositionX) < commonFieldStructure.offsetX;
+	const bool rightOutRange = static_cast<float>(mousePositionX) > sizeX - commonFieldStructure.offsetX;
 	if (leftOutRange || rightOutRange) {
-		return Position(-1, -1);
+		return std::nullopt;
 	}
 
-	const bool topOutRange = (float)mousePositionY < commonFieldStructure.offsetY;
-	const bool bottomOutRange = (float)mousePositionY > sizeY - commonFieldStructure.offsetY;
+	const bool topOutRange = static_cast<float>(mousePositionY) < commonFieldStructure.offsetY;
+	const bool bottomOutRange = static_cast<float>(mousePositionY) > sizeY - commonFieldStructure.offsetY;
 	if (topOutRange || bottomOutRange) {
-		return Position(-1, -1);
+		return std::nullopt;
 	}
 
 	Position mouseField;
-	mouseField.X = (int)((mousePositionX - commonFieldStructure.offsetX) / commonFieldStructure.size);
-	mouseField.Y = (int)((mousePositionY - commonFieldStructure.offsetY) / commonFieldStructure.size);
+	mouseField.X = static_cast<int>((mousePositionX - commonFieldStructure.offsetX) / commonFieldStructure.size);
+	mouseField.Y = static_cast<int>((mousePositionY - commonFieldStructure.offsetY) / commonFieldStructure.size);
 
 	return mouseField;
 }
 
-size_t Layout::mousePositionAsIndex()
+auto Layout::mousePositionAsIndex() -> std::optional<size_t>
 {
-	Position position = mousePosition();
-	if (position.X < 0 || position.Y < 0) {
-		return -1;
+	const auto mouse_position = mousePosition();
+	if (!mouse_position.has_value())
+	{
+		return std::nullopt;
 	}
+	const Position position = mouse_position.value();
 	return positionToIndex(position);
 }
 
@@ -121,15 +123,16 @@ void Layout::OnKeyPressRight() {
 
 void Layout::OnMouseMove(int positionX, int positionY)
 {
-	const size_t prePos = mousePositionAsIndex();
-	if (prePos >= 0) {
-		fields[prePos].mouseOver = false;
+	const auto previous_position= mousePositionAsIndex();
+	if (previous_position.has_value()) {
+		fields[previous_position.value()].mouseOver = false;
 	}
+
 	mousePositionX = positionX;
 	mousePositionY = positionY;
-	const size_t postPos = mousePositionAsIndex();
-	if (postPos >= 0) {
-		fields[postPos].mouseOver = true;
+	const auto current_position = mousePositionAsIndex();
+	if (current_position.has_value()) {
+		fields[current_position.value()].mouseOver = true;
 	}
 }
 

@@ -183,8 +183,12 @@ void MainWindowLogic::OnMouseMove(int positionX, int positionY)
 void MainWindowLogic::OnMouseClick(int positionX, int positionY)
 {
     layout.OnMouseMove(positionX, positionY);
-    Position p = layout.mousePosition();
-    handlePosition(p);
+    const auto p = layout.mousePosition();
+    if (!p.has_value())
+    {
+        return;
+    }
+    handlePosition(p.value());
 }
 
 void MainWindowLogic::handlePosition(Position p)
