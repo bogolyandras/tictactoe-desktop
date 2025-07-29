@@ -20,15 +20,15 @@ class MainWindow
 public:
     MainWindow() : m_hwnd(nullptr), m_menu(nullptr) { }
 
-    static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+    static auto CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) -> LRESULT
     {
         MainWindow* pThis = nullptr;
 
         if (uMsg == WM_NCCREATE)
         {
-            auto* pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
+            const auto pCreate = reinterpret_cast<CREATESTRUCT*>(lParam);
             pThis = reinterpret_cast<MainWindow*>(pCreate->lpCreateParams);
-            SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)pThis);
+            SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pThis));
             pThis->m_hwnd = hwnd;
         }
         else
@@ -38,22 +38,28 @@ public:
 
         if (pThis)
         {
-            return pThis->HandleMessage(uMsg, wParam, lParam);
+            auto handle_message = pThis->HandleMessage(uMsg, wParam, lParam);
+            if (handle_message.has_value())
+            {
+                return handle_message.value();
+            }
+            MessageBox(hwnd, handle_message.error().message().c_str(), L"Error", MB_ICONERROR);
+            return 0;
         }
-        else
-        {
-            return DefWindowProc(hwnd, uMsg, wParam, lParam);
-        }
+
+        return DefWindowProc(hwnd, uMsg, wParam, lParam);
     }
 
-    auto Create(HINSTANCE hInstance) -> BOOL
+    static auto ClassName() { return L"TicTacToe Window Class"; }
+
+    auto Create(const HINSTANCE hInstance) -> std::expected<void, Win32Error>
     {
         m_menu = LoadMenu(hInstance, MAKEINTRESOURCE(IDR_MENU));
         const HICON hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON));
 
         WNDCLASS wc = {};
 
-        wc.lpfnWndProc = MainWindow::WindowProc;
+        wc.lpfnWndProc = WindowProc;
         wc.hInstance = GetModuleHandle(nullptr);
         wc.lpszClassName = ClassName();
         wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
@@ -66,13 +72,19 @@ public:
             CW_USEDEFAULT, CW_USEDEFAULT, nullptr, m_menu, GetModuleHandle(nullptr), this
         );
 
-        return (m_hwnd ? TRUE : FALSE);
+        if (!m_hwnd)
+        {
+            return Win32Error::fromLastError();
+        }
+
+        return {};
     }
 
-    HWND Window() const { return m_hwnd; }
-    HMENU Menu() const { return m_menu; }
-    static PCTSTR ClassName() { return L"TicTacToe Window Class"; }
-    LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+    auto Window() const{ return m_hwnd; }
+
+    auto Menu() const{ return m_menu; }
+
+    auto HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) -> std::expected<LRESULT, Win32Error>;
 
 private:
     HWND m_hwnd;
@@ -120,7 +132,7 @@ BOOL CALLBACK AboutProcHandler(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lP
     }
 }
 
-LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
+auto MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) -> std::expected<LRESULT, Win32Error>
 {
     switch (uMsg)
     {
@@ -129,7 +141,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             auto main_window_logic = MainWindowLogic::Create(m_hwnd);
             if (!main_window_logic.has_value())
             {
-                return -1;
+                return std::unexpected(main_window_logic.error());
             }
             mainWindowLogic = std::move(*main_window_logic);
         }
@@ -249,14 +261,18 @@ int WINAPI wWinMain(
 {
     MainWindow mainWindow;
 
-    if (!mainWindow.Create(hInstance))
+    if (auto mainWindowCreationResult = mainWindow.Create(hInstance); !mainWindowCreationResult.has_value())
     {
+        MessageBox(nullptr,
+            mainWindowCreationResult.error().message().c_str(),
+            L"Window creation failed",
+            MB_ICONERROR);
         return -1;
     }
 
     ShowWindow(mainWindow.Window(), nCmdShow);
 
-    HACCEL hAccel = LoadAccelerators(hInstance, MAKEINTRESOURCE(MENU_ACCELERATOR));
+    const HACCEL hAccel = LoadAccelerators(hInstance, MAKEINTRESOURCE(MENU_ACCELERATOR));
 
     MSG msg = {};
     while (GetMessage(&msg, nullptr, 0, 0))

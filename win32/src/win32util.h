@@ -24,16 +24,11 @@ public:
 		return std::unexpected(Win32Error(GetLastError()));
 	}
 
-	[[nodiscard]] DWORD code() const { return error_code_; }
+	[[nodiscard]] auto code() const { return error_code_; }
 
-	[[nodiscard]] std::string message() const {
-
-		auto localFreeDeleter = [](LPTSTR ptr) {
-			if (ptr) LocalFree(ptr);
-		};
+	[[nodiscard]] auto message() const -> std::wstring {
 
 		LPTSTR messageBuffer = nullptr;
-		std::unique_ptr<TCHAR, decltype(localFreeDeleter)> guard{nullptr, localFreeDeleter};
 
 		const size_t size = FormatMessage(
 			FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
@@ -45,16 +40,10 @@ public:
 			nullptr
 		);
 
-		guard.reset(messageBuffer);
-
-		if (size == 0 || !guard) {
-			return "Unknown error";
+		if (size == 0 || !messageBuffer) {
+			return L"Unknown error";
 		}
-
-		const int narrow_size = WideCharToMultiByte(CP_UTF8, 0, guard.get(), static_cast<int>(size), nullptr, 0, nullptr, nullptr);
-		std::string result(narrow_size, 0);
-		WideCharToMultiByte(CP_UTF8, 0, guard.get(), static_cast<int>(size), result.data(), narrow_size, nullptr, nullptr);
-		return result;
+		return std::wstring(messageBuffer, size);
 	}
 
 private:
