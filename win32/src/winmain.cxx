@@ -22,7 +22,7 @@ public:
 
     static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
-        MainWindow* pThis = NULL;
+        MainWindow* pThis = nullptr;
 
         if (uMsg == WM_NCCREATE)
         {
@@ -46,27 +46,25 @@ public:
         }
     }
 
-    BOOL Create(HINSTANCE hInstance)
+    auto Create(HINSTANCE hInstance) -> BOOL
     {
-        HMENU hMenu = LoadMenu(hInstance, MAKEINTRESOURCE(IDR_MENU));
-        HICON hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON));
+        m_menu = LoadMenu(hInstance, MAKEINTRESOURCE(IDR_MENU));
+        const HICON hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON));
 
         WNDCLASS wc = {};
 
         wc.lpfnWndProc = MainWindow::WindowProc;
-        wc.hInstance = GetModuleHandle(NULL);
+        wc.hInstance = GetModuleHandle(nullptr);
         wc.lpszClassName = ClassName();
-        wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+        wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
         wc.hIcon = hIcon;
 
         RegisterClass(&wc);
 
         m_hwnd = CreateWindowEx(
             0, ClassName(), L"TicTacToe", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
-            CW_USEDEFAULT, CW_USEDEFAULT, nullptr, hMenu, GetModuleHandle(nullptr), this
+            CW_USEDEFAULT, CW_USEDEFAULT, nullptr, m_menu, GetModuleHandle(nullptr), this
         );
-
-        m_menu = hMenu;
 
         return (m_hwnd ? TRUE : FALSE);
     }

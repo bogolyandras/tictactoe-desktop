@@ -1,5 +1,15 @@
 #include "D2BrushToolkit.hpp"
 
+#define TRY_TO_ASSIGN(target, expression) \
+    do { \
+        auto result = (expression); \
+        if (!result.has_value()) { \
+            return std::unexpected(result.error()); \
+        } \
+        target.reset(*result); \
+    } while(0)
+
+
 namespace direct2d
 {
     auto create_factory() -> std::expected<ID2D1Factory*, Win32Error>
@@ -49,12 +59,8 @@ namespace direct2d
 
     auto initialize_2d_brush_toolkit(D2BrushToolkit* brush_toolkit, HWND m_hwnd) -> std::expected<void, Win32Error>
     {
-        auto pFactory = create_factory();
-        if (!pFactory.has_value())
-        {
-            return std::unexpected(pFactory.error());
-        }
-        brush_toolkit->pFactory.reset(*pFactory);
+        TRY_TO_ASSIGN(brush_toolkit->pFactory,
+            create_factory());
 
         auto size_e = get_size_of_window(m_hwnd);
         if (!size_e.has_value())
@@ -63,68 +69,34 @@ namespace direct2d
         }
         const D2D1_SIZE_U size = size_e.value();
 
-        auto pRenderTarget = create_render_target(*pFactory, m_hwnd, size);
-        if (!pRenderTarget.has_value())
-        {
-            return std::unexpected(pRenderTarget.error());
-        }
-        brush_toolkit->pRenderTarget.reset(*pRenderTarget);
+        TRY_TO_ASSIGN(brush_toolkit->pRenderTarget,
+            create_render_target(brush_toolkit->pFactory.get(), m_hwnd, size));
 
-        auto backgroundBrush = create_brush(*pRenderTarget, D2D1::ColorF::White);
-        if (!backgroundBrush.has_value())
-        {
-            return std::unexpected(backgroundBrush.error());
-        }
-        brush_toolkit->backgroundBrush.reset(*backgroundBrush);
+        const auto pRenderTarget = brush_toolkit->pRenderTarget.get();
 
-        auto cursorSelectedBackgroundBrush = create_brush(*pRenderTarget, D2D1::ColorF::LightBlue);
-        if (!cursorSelectedBackgroundBrush.has_value())
-        {
-            return std::unexpected(cursorSelectedBackgroundBrush.error());
-        }
-        brush_toolkit->cursorSelectedBackgroundBrush.reset(*cursorSelectedBackgroundBrush);
+        TRY_TO_ASSIGN(brush_toolkit->backgroundBrush,
+            create_brush(pRenderTarget, D2D1::ColorF::White));
 
-        auto mouseOverBackgroundBrush = create_brush(*pRenderTarget, D2D1::ColorF::LightGreen);
-        if (!mouseOverBackgroundBrush.has_value())
-        {
-            return std::unexpected(mouseOverBackgroundBrush.error());
-        }
-        brush_toolkit->mouseOverBackgroundBrush.reset(*mouseOverBackgroundBrush);
+        TRY_TO_ASSIGN(brush_toolkit->cursorSelectedBackgroundBrush,
+            create_brush(pRenderTarget, D2D1::ColorF::LightBlue));
 
-        auto lastMoveBackgroundBrush = create_brush(*pRenderTarget, D2D1::ColorF::BlanchedAlmond);
-        if (!lastMoveBackgroundBrush.has_value())
-        {
-            return std::unexpected(lastMoveBackgroundBrush.error());
-        }
-        brush_toolkit->lastMoveBackgroundBrush.reset(*lastMoveBackgroundBrush);
+        TRY_TO_ASSIGN(brush_toolkit->mouseOverBackgroundBrush,
+            create_brush(pRenderTarget, D2D1::ColorF::LightGreen));
 
-        auto highLightBackgroundBrush = create_brush(*pRenderTarget, D2D1::ColorF::Violet);
-        if (!highLightBackgroundBrush.has_value())
-        {
-            return std::unexpected(highLightBackgroundBrush.error());
-        }
-        brush_toolkit->highLightBackgroundBrush.reset(*highLightBackgroundBrush);
+        TRY_TO_ASSIGN(brush_toolkit->lastMoveBackgroundBrush,
+            create_brush(pRenderTarget, D2D1::ColorF::BlanchedAlmond));
 
-        auto borderBrush = create_brush(*pRenderTarget, D2D1::ColorF::DarkOrange);
-        if (!borderBrush.has_value())
-        {
-            return std::unexpected(borderBrush.error());
-        }
-        brush_toolkit->borderBrush.reset(*borderBrush);
+        TRY_TO_ASSIGN(brush_toolkit->highLightBackgroundBrush,
+            create_brush(pRenderTarget, D2D1::ColorF::Violet));
 
-        auto player1Brush = create_brush(*pRenderTarget, D2D1::ColorF::PaleVioletRed);
-        if (!player1Brush.has_value())
-        {
-            return std::unexpected(player1Brush.error());
-        }
-        brush_toolkit->player1Brush.reset(*player1Brush);
+        TRY_TO_ASSIGN(brush_toolkit->borderBrush,
+            create_brush(pRenderTarget, D2D1::ColorF::DarkOrange));
 
-        auto player2Brush = create_brush(*pRenderTarget, D2D1::ColorF::DarkGreen);
-        if (!player2Brush.has_value())
-        {
-            return std::unexpected(player2Brush.error());
-        }
-        brush_toolkit->player2Brush.reset(*player2Brush);
+        TRY_TO_ASSIGN(brush_toolkit->player1Brush,
+            create_brush(pRenderTarget, D2D1::ColorF::PaleVioletRed));
+
+        TRY_TO_ASSIGN(brush_toolkit->player2Brush,
+            create_brush(pRenderTarget, D2D1::ColorF::DarkGreen));
 
         return {};
     }
