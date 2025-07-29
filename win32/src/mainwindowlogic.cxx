@@ -2,33 +2,25 @@
 
 #include <ai/tableviewimpl.h>
 
-MainWindowLogic::MainWindowLogic(HWND m_hwnd) :
+MainWindowLogic::MainWindowLogic(const HWND m_hwnd) :
     m_hwnd{ m_hwnd },
     layout(35, 25),
     table(35, 25),
-    ai(),
     IAmStartingTheGame{ true }
+{}
+
+auto MainWindowLogic::Create(const HWND m_hwnd) -> std::expected<std::unique_ptr<MainWindowLogic>, Win32Error>
 {
-    pFactory = direct2d::create_factory();
-    D2D1_SIZE_U size = direct2d::get_size_of_window(m_hwnd);
-    pRenderTarget = direct2d::create_render_target(pFactory.get(), m_hwnd, size);
-    backgroundBrush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::White);
-    cursorSelectedBackgroundBrush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::LightBlue);
-    mouseOverBackgroundBrush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::LightGreen);
-    lastMoveBackgroundBrush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::BlanchedAlmond);
-    highlighBackgroundBrush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::Violet);
-    borderBrush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::DarkOrange);
-    player1Brush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::PaleVioletRed);
-    player2Brush = direct2d::create_brush(pRenderTarget.get(), D2D1::ColorF::DarkGreen);
-    CalculateLayout();
+    auto main_window_logic = std::unique_ptr<MainWindowLogic>(new MainWindowLogic(m_hwnd));
+    direct2d::initialize_2d_brush_toolkit(&main_window_logic->brush_toolkit, m_hwnd);
+    main_window_logic->CalculateLayout();
+    return main_window_logic;
 }
 
 void MainWindowLogic::CalculateLayout()
 {
-
-    D2D1_SIZE_F size = pRenderTarget->GetSize();
+    D2D1_SIZE_F size = brush_toolkit.pRenderTarget->GetSize();
     layout.ChangeSize(size.width, size.height);
-
 }
 
 void MainWindowLogic::OnPaint()
@@ -36,9 +28,9 @@ void MainWindowLogic::OnPaint()
     PAINTSTRUCT ps;
     BeginPaint(m_hwnd, &ps);
 
-    pRenderTarget->BeginDraw();
+    brush_toolkit.pRenderTarget->BeginDraw();
 
-    pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
+    brush_toolkit.pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
 
     for (size_t i = 0; i < layout.numberOfFields; i++) {
 
@@ -47,9 +39,9 @@ void MainWindowLogic::OnPaint()
             layout.fields[i].positionX + layout.commonFieldStructure.size,
             layout.fields[i].positionY + layout.commonFieldStructure.size
         );
-        pRenderTarget->FillRectangle(rect, borderBrush.get());
+        brush_toolkit.pRenderTarget->FillRectangle(rect, brush_toolkit.borderBrush.get());
 
-        D2D1_SIZE_F size = pRenderTarget->GetSize();
+        D2D1_SIZE_F size = brush_toolkit.pRenderTarget->GetSize();
         const float minSize = std::min(size.width, size.height);
 
         const float border = minSize / 400;
@@ -62,22 +54,22 @@ void MainWindowLogic::OnPaint()
 
         ID2D1SolidColorBrush* selectedBackgroundBrushP;
         if (layout.fields[i].cursorOver) {
-            selectedBackgroundBrushP = cursorSelectedBackgroundBrush.get();
+            selectedBackgroundBrushP = brush_toolkit.cursorSelectedBackgroundBrush.get();
         }
         else if (layout.fields[i].mouseOver) {
-            selectedBackgroundBrushP = mouseOverBackgroundBrush.get();
+            selectedBackgroundBrushP = brush_toolkit.mouseOverBackgroundBrush.get();
         }
         else if (table.fields[i].lastMove) {
-            selectedBackgroundBrushP = lastMoveBackgroundBrush.get();
+            selectedBackgroundBrushP = brush_toolkit.lastMoveBackgroundBrush.get();
         }
         else if (table.fields[i].highlight) {
-            selectedBackgroundBrushP = highlighBackgroundBrush.get();
+            selectedBackgroundBrushP = brush_toolkit.highLightBackgroundBrush.get();
         }
         else {
-            selectedBackgroundBrushP = backgroundBrush.get();
+            selectedBackgroundBrushP = brush_toolkit.backgroundBrush.get();
         }
 
-        pRenderTarget->FillRectangle(rect, selectedBackgroundBrushP);
+        brush_toolkit.pRenderTarget->FillRectangle(rect, selectedBackgroundBrushP);
 
         if (table.fields[i].fieldState == FieldState::Naught) {
             const float x = layout.fields[i].positionX + (layout.commonFieldStructure.size / 2.0f);
@@ -85,29 +77,29 @@ void MainWindowLogic::OnPaint()
             const float radius = std::min(layout.commonFieldStructure.size / 2.0f, layout.commonFieldStructure.size / 2.0f);
 
             D2D1_ELLIPSE ellipse = D2D1::Ellipse(D2D1::Point2F(x, y), radius, radius);
-            pRenderTarget->FillEllipse(ellipse, player1Brush.get());
+            brush_toolkit.pRenderTarget->FillEllipse(ellipse, brush_toolkit.player1Brush.get());
             ellipse = D2D1::Ellipse(D2D1::Point2F(x, y), radius * 0.8f, radius * 0.8f);
-            pRenderTarget->FillEllipse(ellipse, backgroundBrush.get());
+            brush_toolkit.pRenderTarget->FillEllipse(ellipse, brush_toolkit.backgroundBrush.get());
         }
         else if (table.fields[i].fieldState == FieldState::Cross) {
-            pRenderTarget->DrawLine(
+            brush_toolkit.pRenderTarget->DrawLine(
                 D2D1::Point2F(layout.fields[i].positionX, layout.fields[i].positionY),
                 D2D1::Point2F(layout.fields[i].positionX + layout.commonFieldStructure.size, layout.fields[i].positionY + layout.commonFieldStructure.size),
-                player2Brush.get(),
+                brush_toolkit.player2Brush.get(),
                 1.5f
             );
 
-            pRenderTarget->DrawLine(
+            brush_toolkit.pRenderTarget->DrawLine(
                 D2D1::Point2F(layout.fields[i].positionX, layout.fields[i].positionY + layout.commonFieldStructure.size),
                 D2D1::Point2F(layout.fields[i].positionX + layout.commonFieldStructure.size, layout.fields[i].positionY),
-                player2Brush.get(),
+                brush_toolkit.player2Brush.get(),
                 border
             );
         }
     }
 
 
-    HRESULT hr = pRenderTarget->EndDraw();
+    HRESULT hr = brush_toolkit.pRenderTarget->EndDraw();
     if (FAILED(hr) || hr == D2DERR_RECREATE_TARGET)
     {
         throw - 1;
@@ -123,7 +115,7 @@ void MainWindowLogic::OnResize()
 
     D2D1_SIZE_U size = D2D1::SizeU(rc.right, rc.bottom);
 
-    pRenderTarget->Resize(size);
+    brush_toolkit.pRenderTarget->Resize(size);
     CalculateLayout();
     InvalidateRect(m_hwnd, NULL, FALSE);
 }

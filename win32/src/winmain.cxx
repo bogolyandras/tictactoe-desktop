@@ -13,7 +13,6 @@
 
 class MainWindow
 {
-private:
     std::unique_ptr<MainWindowLogic> mainWindowLogic;
     bool trackingMouse = false;
     void trackMouse();
@@ -129,13 +128,12 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
     case WM_CREATE:
         {
-            try {
-                mainWindowLogic.reset(new MainWindowLogic(m_hwnd));
-            }
-            catch (const std::exception& e) {
-                // UNREFERENCED_PARAMETER(e);
+            auto main_window_logic = MainWindowLogic::Create(m_hwnd);
+            if (!main_window_logic.has_value())
+            {
                 return -1;
             }
+            mainWindowLogic = std::move(*main_window_logic);
         }
         return 0;
     case WM_CLOSE:

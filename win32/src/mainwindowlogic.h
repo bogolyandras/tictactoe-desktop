@@ -2,6 +2,7 @@
 #define MAINWINDOWLOGIC_H
 
 #include "win32util.h"
+#include "D2BrushToolkit.hpp"
 
 // C++ Header files
 #include <string>
@@ -10,24 +11,14 @@
 #include <layout.h>
 #include <table.h>
 #include <ai/heuristicai.h>
-#include <expected>
 
 class MainWindowLogic
 {
-private:
-
+    MainWindowLogic() = delete;
+    explicit MainWindowLogic(HWND m_hwnd);
     HWND m_hwnd;
 
-    std::unique_ptr<ID2D1Factory> pFactory;
-    std::unique_ptr<ID2D1HwndRenderTarget> pRenderTarget;
-    std::unique_ptr<ID2D1SolidColorBrush> backgroundBrush;
-    std::unique_ptr<ID2D1SolidColorBrush> cursorSelectedBackgroundBrush;
-    std::unique_ptr<ID2D1SolidColorBrush> mouseOverBackgroundBrush;
-    std::unique_ptr<ID2D1SolidColorBrush> lastMoveBackgroundBrush;
-    std::unique_ptr<ID2D1SolidColorBrush> highlighBackgroundBrush;
-    std::unique_ptr<ID2D1SolidColorBrush> borderBrush;
-    std::unique_ptr<ID2D1SolidColorBrush> player1Brush;
-    std::unique_ptr<ID2D1SolidColorBrush> player2Brush;
+    direct2d::D2BrushToolkit brush_toolkit;
 
     int32_t times = 0;
 
@@ -38,9 +29,8 @@ private:
 
     void handlePosition(Position p);
     void handleOpponent();
-
 public:
-    MainWindowLogic(HWND m_hwnd);
+    static auto Create(HWND m_hwnd) -> std::expected<std::unique_ptr<MainWindowLogic>, Win32Error>;
 
     void CalculateLayout();
     void OnPaint();

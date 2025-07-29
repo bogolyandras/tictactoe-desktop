@@ -2,7 +2,7 @@
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 
 # Add source to this project's executable.
-add_executable (TicTacToeWin32 WIN32 "src/winmain.cxx" "src/win32util.cxx" "src/mainwindowlogic.cxx" "resource/resource.rc")
+add_executable (TicTacToeWin32 WIN32 "src/winmain.cxx" "src/mainwindowlogic.cxx" "src/D2BrushToolkit.cpp" "resource/resource.rc")
 target_link_libraries(TicTacToeWin32 PUBLIC ComCtl32.lib d2d1.lib)
 target_link_libraries(TicTacToeWin32 PUBLIC TicTacToeCore)
 
